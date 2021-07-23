@@ -1,0 +1,90 @@
+body {
+  margin: 0;
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+button {
+  cursor: pointer;
+}
+
+.rs-btn-primary {
+  background: #ff8248 !important;
+}
+
+.edit-btn {
+  padding: 6px;
+  background: #7bcb4d;
+  border-radius: 3px;
+  color: white;
+  box-shadow: 0 2px 2px 0 rgb(0 0 0 / 20%);
+  cursor: pointer;
+}
+
+.table-flex-center {
+  display: flex;
+  width: 100%;
+  height: 150px;
+  align-items: center;
+  justify-content: center;
+}
+
+.fa-spinner {
+  animation: Spinner infinite 2s linear;
+}
+
+.pagination {
+  margin: 0 2px;
+  display: flex;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  margin: 10px;
+}
+
+.card-body {
+  overflow-x: hidden;
+}
+
+.table-container {
+  overflow: auto;
+}
+
+@media (max-width: 767px) {
+  .hidden {
+    display: inline;
+  }
+  .top-bar.primary-top-bar {
+    box-shadow: 0 0 15px 10px #0a111111;
+  }
+}
+
+@keyframes Spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
