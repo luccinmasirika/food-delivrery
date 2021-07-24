@@ -16,8 +16,39 @@ button {
   cursor: pointer;
 }
 
+.cell-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell-image .image-container {
+  position: relative;
+  width: 60px;
+  height: 34px;
+  background-color: black;
+}
+.cell-image .image-container img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.rs-picker-default .rs-picker-toggle.rs-btn {
+  width: -webkit-fill-available !important;
+}
 .rs-btn-primary {
   background: #ff8248 !important;
+}
+
+.rs-modal-body::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+  overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
+}
+
+.rs-modal-body::-webkit-scrollbar-thumb {
+  background-color: gainsboro;
 }
 
 .edit-btn {

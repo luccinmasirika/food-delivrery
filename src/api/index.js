@@ -7,7 +7,7 @@ const axios = require('axios').create({
   headers: {
     Accept: 'application/json',
     Authorization: `Bearer ${token}`,
-  }
+  },
 });
 
 export const onCreateData = async (url, data) => {

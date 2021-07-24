@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { API } from '../config';
+import { API } from '../../config';
 import TablePagination from 'rsuite/lib/Table/TablePagination';
-import data from './fakedata.json';
 import dayjs from 'dayjs';
-import { Table, Icon, IconButton } from 'rsuite';
+import { Table } from 'rsuite';
 
 export default function PaginationTable({
   data,
@@ -22,16 +19,17 @@ export default function PaginationTable({
       <Table height={420} data={data} rowHeight={60} loading={loading}>
         <Table.Column width={150} align='center'>
           <Table.HeaderCell>Image</Table.HeaderCell>
-          <Table.Cell>
+          <Table.Cell className='cell-image'>
             {(data) => (
-              <span>
-                <img
-                  width='auto'
-                  height='34'
-                  src={`${API}/${data.image}`}
-                  alt={data.nom}
-                />
-              </span>
+              <div className='cell-image'>
+                <div className='image-container'>
+                  <img
+                    className='image'
+                    src={`${API}/${data.image}`}
+                    alt={data.nom}
+                  />
+                </div>
+              </div>
             )}
           </Table.Cell>
         </Table.Column>
@@ -70,6 +68,8 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
       </Table>
+
+      {console.log('tot', page, total)}
 
       <TablePagination
         lengthMenu={[

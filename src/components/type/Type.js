@@ -1,12 +1,12 @@
 import Footer from '../footer/Footer';
 import Layout from '../Layout';
 import Header from '../navBar/Header';
-import axios from 'axios';
 import { useState, useEffect } from 'react';
-import PaginationTable from '../../sections/DataTable';
+import PaginationTable from './DataTable';
 import TypeModal from './TypeModal';
 import { isAuthenticated } from '../../api/auth';
-import { onCreate, onGetData } from '../../api/type';
+import { onCreateData, onGetData } from '../../api';
+import { Alert } from 'rsuite';
 
 export default function Type() {
   const [showModal, setShowModal] = useState(false);
@@ -18,23 +18,25 @@ export default function Type() {
     description: '',
     image: '',
     formData: new FormData(),
+    update: false,
   });
   const [allType, setAllType] = useState([]);
   const [paginate, setPaginate] = useState({
     total: 0,
     page: 0,
     pages: 0,
-    limit: 0,
+    limit: 10,
   });
   const [state, setState] = useState({
     error: '',
     success: '',
     loading: false,
   });
+  const [runEffect, setRunEffect] = useState(false);
 
-  const { loading, success, message } = state;
+  const { loading } = state;
   const { total, page, pages, limit } = paginate;
-  const { title, nom, description, image } = type;
+  const { title, image, update, formData } = type;
 
   function openModal(title) {
     setType({ ...type, title });
@@ -42,17 +44,20 @@ export default function Type() {
   }
 
   function closeModal() {
+    setState({ ...state, loading: false, error: '' });
     setShowModal(false);
     setType({ ...type, title: '', nom: '', description: '', image: '' });
   }
 
   const handleChange = (value, name) => {
+    setState({ ...state, loading: false, error: '' });
     const { nom, description } = value;
     setType({ ...type, nom, description });
-    type.formData.set(name.target.name, name.target.value);
+    formData.set(name.target.name, name.target.value);
   };
 
   const handleImageChange = (value) => {
+    setState({ ...state, loading: false, error: '' });
     setType({
       ...type,
       image: value[0] && value[0].blobFile,
@@ -60,13 +65,13 @@ export default function Type() {
     type.formData.append('image', value[0] && value[0].blobFile);
   };
 
-  const handleChangePage = () => {
-    //TODO : Pagination page change
+  const handleChangePage = (data) => {
+    setPaginate({ ...paginate, page: data });
   };
 
   const handleChangeLength = (data) => {
     setState({ ...state, loading: true });
-    setPaginate({ ...paginate, limit: data });
+    setPaginate({ ...paginate, limit: data, page: 1 });
   };
 
   const handleEdit = (data) => {
@@ -76,24 +81,35 @@ export default function Type() {
       title: `Update ${nom}'s informations`,
       nom,
       description,
+      update: true,
     });
     setShowModal(true);
   };
 
-  const onSubmit = async () => {
-    const res = await axios.post(
-      'http://localhost:8000/api/test',
-      type.formData
-    );
-    console.log(res.data);
+  const onSubmitCreate = async (data) => {
+    setState({ ...state, loading: true });
+    const res = await onCreateData(`/create/type/${user._id}`, data);
+    if (res && res.error) {
+      return setState({ ...state, error: res.error, loading: false });
+    }
+    Alert.success(res.message, 3000);
+    setState({ ...state, loading: false, success: res.message });
+    setShowModal(false);
+    setRunEffect(true);
+  };
+
+  const onSubmitUpdate = async () => {
+    console.log('Comming Soon !');
   };
 
   useEffect(() => {
     (async () => {
-      const res = await onGetData(`/read/all/type/${user._id}?limit=${limit}&page=${page}`);
-      console.log('test data ongetdata', res.error);
+      setState({ ...state, loading: true });
+      const res = await onGetData(
+        `/read/all/type/${user._id}?limit=${limit}&page=${page}`
+      );
       if (res && res.error) {
-        setState({ ...state, loading: false, error: res.error });
+        return setState({ ...state, loading: false, error: res.error });
       }
       setAllType(res.data);
       setPaginate({
@@ -103,7 +119,7 @@ export default function Type() {
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit]);
+  }, [limit, runEffect, page]);
 
   return (
     <Layout>
@@ -120,11 +136,14 @@ export default function Type() {
           title={title}
           data={type}
           showModal={showModal}
+          state={state}
           closeModal={closeModal}
-          btnStatus={image}
+          btnStatus={image ? true : false}
           handleChange={handleChange}
           handleImageChange={handleImageChange}
-          onSubmit={onSubmit}
+          onSubmit={() =>
+            update ? onSubmitUpdate(formData) : onSubmitCreate(formData)
+          }
         />
         <div className='card'>
           <PaginationTable
@@ -132,6 +151,7 @@ export default function Type() {
             total={total}
             page={page}
             pages={pages}
+            displayLength={limit}
             loading={loading}
             handleChangePage={handleChangePage}
             handleChangeLength={handleChangeLength}

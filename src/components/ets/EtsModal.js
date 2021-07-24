@@ -6,13 +6,14 @@ import {
   FormControl,
   FormGroup,
   Icon,
+  InputPicker,
   Loader,
   Message,
   Modal,
   Uploader,
 } from 'rsuite';
 
-export default function TypeModal({
+export default function EtsModal({
   title,
   data,
   state,
@@ -52,6 +53,7 @@ export default function TypeModal({
             </ControlLabel>
             <FormControl name='nom' value={data.nom} />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>
               Description <code>*</code>
@@ -61,6 +63,22 @@ export default function TypeModal({
               name='description'
               value={data.description}
               componentClass='textarea'
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>
+              Type <code>*</code>
+            </ControlLabel>
+            <InputPicker
+              data={[
+                { label: 'Eugenia 1', value: 'test 1' },
+                { label: 'Eugenia 2', value: 'test' },
+                { label: 'Eugenia 3', value: 'test' },
+                { label: 'Eugenia 4', value: 'test' },
+              ]}
+              defaultValue={'Julius'}
+              disabledItemValues={['Eugenia 2', 'test 1']}
+              block
             />
           </FormGroup>
         </Form>

@@ -10,6 +10,7 @@ const Home = lazy(() => import('./components/home/Home'));
 
 //Application
 const Type = lazy(() => import('./components/type/Type'));
+const Ets = lazy(() => import('./components/ets/Ets'));
 
 //LAnding page
 const Why = lazy(() => import('./components/why/Why'));
@@ -43,6 +44,7 @@ function App() {
         <Switch>
           <PrivateRoute path='/' exact component={Home} />
           <PrivateRoute path='/type' exact component={Type} />
+          <PrivateRoute path='/ets' exact component={Ets} />
           <PrivateRoute path='/why-choose-us' exact component={Why} />
           <PrivateRoute path='/banner' exact component={Banner} />
           <PrivateRoute path='/features' exact component={Features} />
