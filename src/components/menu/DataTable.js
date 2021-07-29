@@ -2,19 +2,7 @@ import React, { useState } from 'react';
 import { API } from '../../config';
 import TablePagination from 'rsuite/lib/Table/TablePagination';
 import dayjs from 'dayjs';
-import {
-  Button,
-  Divider,
-  Form,
-  FormControl,
-  FormGroup,
-  Icon,
-  Input,
-  InputPicker,
-  Modal,
-  Panel,
-  Table,
-} from 'rsuite';
+import { Button, Icon, Modal, Panel, Table } from 'rsuite';
 import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
 
 export default function PaginationTable({
@@ -27,7 +15,7 @@ export default function PaginationTable({
   handleChangeLength,
   displayLength,
   handleAction,
-  typeData,
+  onSubmitAnableDisable,
 }) {
   const [show, setShow] = useState(false);
   const [state, setState] = useState('');
@@ -41,17 +29,13 @@ export default function PaginationTable({
     setShow(false);
   };
 
-  const onSubmitAnableDisable = (data) => {
-    console.log('data2', data);
-  };
-
   const disableModal = (data) => {
     return (
       <div className='modal-container'>
         <Modal backdrop='static' show={show} onHide={close} size='xs'>
           <Modal.Body>
             <Icon
-              icon='times-circle'
+              icon='remind'
               style={{
                 color: '#ffb300',
                 fontSize: 40,
@@ -63,12 +47,12 @@ export default function PaginationTable({
             Once <span className='badge badge-info badge-pill'>
               {data.nom}
             </span>{' '}
-            is disabled, the establishment and all its products will no longer
-            be visible in the application until reactivation. Are you sure you
-            want to proceed?
+            is disabled, the manu and all its products will no longer be visible
+            in the application until reactivation. Are you sure you want to
+            proceed?
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={() => onSubmitAnableDisable(state)} color='red'>
+            <Button onClick={close} color='red'>
               Disable
             </Button>
             <Button onClick={close} appearance='subtle'>
@@ -79,27 +63,11 @@ export default function PaginationTable({
       </div>
     );
   };
-
   return (
     <div>
       {show && disableModal(state)}
-      <Panel header='Filters' collapsible bordered>
-        <div className='row'>
-          <div className='col-md-6'>
-            <InputPicker
-              data={typeData}
-              placeholder='Filter by type'
-              onChange={() => console.log('Filters')}
-              block
-            />
-          </div>
-          <div className='col-md-6'>
-            <Input
-              placeholder='Search'
-              onChange={() => console.log('Filters')}
-            />
-          </div>
-        </div>
+      <Panel header='Show filters' collapsible>
+        <PlaceholderParagraph />
       </Panel>
       <Table height={370} data={data} rowHeight={60} loading={loading}>
         <Table.Column width={150} align='center'>
@@ -125,33 +93,20 @@ export default function PaginationTable({
             {(data) => (
               <>
                 {data.nom}{' '}
-                <span className='badge badge-primary badge-pill'>200</span>
+                <span className='badge badge-primary badge-pill'>2</span>
               </>
             )}
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={150}>
-          <Table.HeaderCell>Hours</Table.HeaderCell>
-          <Table.Cell>
-            {(data) => (
-              <span>
-                From {data.heure && dayjs(data.heure.ouverture).format('HH:mm')}{' '}
-                To {data.heure && dayjs(data.heure.fermeture).format('HH:mm')}
-              </span>
-            )}
-          </Table.Cell>
+        <Table.Column width={200}>
+          <Table.HeaderCell>Establishment</Table.HeaderCell>
+          <Table.Cell>{(data) => data.ets.nom}</Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200} flexGrow={1}>
-          <Table.HeaderCell>Localisation</Table.HeaderCell>
-          <Table.Cell>
-            {(data) => (
-              <span>
-                Long: {data.localisation.long}- Lat: {data.localisation.lat}
-              </span>
-            )}
-          </Table.Cell>
+        <Table.Column width={200}>
+          <Table.HeaderCell>Category</Table.HeaderCell>
+          <Table.Cell>{(data) => data.category.nom}</Table.Cell>
         </Table.Column>
 
         <Table.Column width={100} flexGrow={1}>
@@ -171,26 +126,19 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200}>
+        <Table.Column width={300} flexGrow={1}>
+          <Table.HeaderCell>Description</Table.HeaderCell>
+          <Table.Cell dataKey='description' />
+        </Table.Column>
+
+        <Table.Column width={300} flexGrow={1}>
           <Table.HeaderCell>Date</Table.HeaderCell>
           <Table.Cell>
             {(data) => dayjs(data.updatedAt).format('DD MMMM YYYY - HH:mm')}
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200} flexGrow={1}>
-          <Table.HeaderCell>Type</Table.HeaderCell>
-          <Table.Cell>
-            {(data) => <span>{data.type && data.type.nom}</span>}
-          </Table.Cell>
-        </Table.Column>
-
-        <Table.Column width={300} flexGrow={1}>
-          <Table.HeaderCell>Description</Table.HeaderCell>
-          <Table.Cell dataKey='description' />
-        </Table.Column>
-
-        <Table.Column width={220} align='center' fixed='right'>
+        <Table.Column width={120} align='center' fixed='right'>
           <Table.HeaderCell>Action</Table.HeaderCell>
 
           <Table.Cell>

@@ -99,7 +99,7 @@ export default function Type() {
   };
 
   const onSubmitUpdate = async () => {
-    console.log('Comming Soon !');
+    alert('Comming Soon !');
   };
 
   useEffect(() => {

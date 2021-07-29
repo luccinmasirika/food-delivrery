@@ -41,8 +41,8 @@ $('body').on('hidden.bs.modal', '.modal', function (e) {
 })
 
   // //tooltip popover
-  // $('[data-toggle="tooltip"]').tooltip();
-  // $('[data-toggle="popover"]').popover();
+  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="popover"]').popover();
 })(jQuery);
 
 

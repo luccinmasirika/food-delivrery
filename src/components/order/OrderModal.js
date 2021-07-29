@@ -12,7 +12,7 @@ import {
   Uploader,
 } from 'rsuite';
 
-export default function TypeModal({
+export default function OrderModal({
   title,
   data,
   state,

@@ -21,7 +21,7 @@ const Header = ({ parent, title, content, create, handelClick }) => {
             onClick={handelClick}
             className='btn btn-success box-shadow btn-icon btn-rounded'
           >
-            <i className='fa fa-plus' /> Créér un nouveau
+            <i className='fa fa-plus' /> Create new
           </button>
         </div>
       )}

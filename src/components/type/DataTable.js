@@ -16,7 +16,7 @@ export default function PaginationTable({
 }) {
   return (
     <div>
-      <Table height={420} data={data} rowHeight={60} loading={loading}>
+      <Table height={370} data={data} rowHeight={60} loading={loading}>
         <Table.Column width={150} align='center'>
           <Table.HeaderCell>Image</Table.HeaderCell>
           <Table.Cell className='cell-image'>
@@ -36,7 +36,14 @@ export default function PaginationTable({
 
         <Table.Column width={250} resizable={true}>
           <Table.HeaderCell>Nom</Table.HeaderCell>
-          <Table.Cell dataKey='nom' />
+          <Table.Cell>
+            {(data) => (
+              <>
+                {data.nom}{' '}
+                <span className='badge badge-primary badge-pill'>2</span>
+              </>
+            )}
+          </Table.Cell>
         </Table.Column>
 
         <Table.Column width={300} flexGrow={1}>

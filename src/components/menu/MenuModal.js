@@ -6,13 +6,14 @@ import {
   FormControl,
   FormGroup,
   Icon,
+  InputPicker,
   Loader,
   Message,
   Modal,
   Uploader,
 } from 'rsuite';
 
-export default function TypeModal({
+export default function MenuModal({
   title,
   data,
   state,
@@ -21,14 +22,16 @@ export default function TypeModal({
   btnStatus,
   handleChange,
   handleImageChange,
+  handleSelectChange,
   onSubmit,
+  etsData,
+  catData,
 }) {
   return (
     <Modal size={'xs'} show={showModal} onHide={closeModal}>
       <Modal.Header>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
-
       <Modal.Body>
         {state.loading && (
           <Message
@@ -61,6 +64,30 @@ export default function TypeModal({
               name='description'
               value={data.description}
               componentClass='textarea'
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>
+              Category <code>*</code>
+            </ControlLabel>
+            <InputPicker
+              data={catData}
+              name='category'
+              defaultValue={'Select category'}
+              onChange={handleSelectChange('category')}
+              block
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>
+              Establisment <code>*</code>
+            </ControlLabel>
+            <InputPicker
+              data={etsData}
+              name='ets'
+              defaultValue={'Select establisment'}
+              onChange={handleSelectChange('ets')}
+              block
             />
           </FormGroup>
         </Form>

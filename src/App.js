@@ -11,6 +11,8 @@ const Home = lazy(() => import('./components/home/Home'));
 //Application
 const Type = lazy(() => import('./components/type/Type'));
 const Ets = lazy(() => import('./components/ets/Ets'));
+const Menu = lazy(() => import('./components/menu/Menu'));
+const Order = lazy(() => import('./components/order/Order'));
 
 //LAnding page
 const Why = lazy(() => import('./components/why/Why'));
@@ -45,13 +47,15 @@ function App() {
           <PrivateRoute path='/' exact component={Home} />
           <PrivateRoute path='/type' exact component={Type} />
           <PrivateRoute path='/ets' exact component={Ets} />
+          <PrivateRoute path='/menu' exact component={Menu} />
+          <PrivateRoute path='/order' exact component={Order} />
           <PrivateRoute path='/why-choose-us' exact component={Why} />
           <PrivateRoute path='/banner' exact component={Banner} />
           <PrivateRoute path='/features' exact component={Features} />
           <PrivateRoute path='/contact-us' exact component={ContactUs} />
           <PrivateRoute path='/download' exact component={Download} />
           <PrivateRoute path='/app-screen' exact component={AppScreen} />
-          <AdminRoute path='/users' exact component={Users} />
+          {/* <AdminRoute path='/users' exact component={Users} /> */}
           <PrivateRoute path='/setting' exact component={Setting} />
           <Route path='/login' exact component={Login} />
           <Route path='*' exact component={NoMatch} />

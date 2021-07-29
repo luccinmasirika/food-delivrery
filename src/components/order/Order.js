@@ -1,31 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import Footer from '../footer/Footer';
 import Layout from '../Layout';
 import Header from '../navBar/Header';
-import EtsModal from './EtsModal';
+import { useState, useEffect } from 'react';
+import PaginationTable from './DataTable';
+import OrderModal from './OrderModal';
 import { isAuthenticated } from '../../api/auth';
 import { onCreateData, onGetData } from '../../api';
-import PaginationTable from './DataTable';
-import Footer from '../footer/Footer';
 import { Alert } from 'rsuite';
 
-export default function Ets() {
+export default function Type() {
   const [showModal, setShowModal] = useState(false);
   const { user } = isAuthenticated();
 
-  const [ets, setEts] = useState({
+  const [type, setType] = useState({
     title: '',
     nom: '',
     description: '',
     image: '',
-    type: '',
-    ouverture: '',
-    fermeture: '',
-    long: '',
-    lat: '',
-    update: false,
     formData: new FormData(),
+    update: false,
   });
-  const [allEts, setAllEts] = useState([]);
   const [allType, setAllType] = useState([]);
   const [paginate, setPaginate] = useState({
     total: 0,
@@ -42,55 +36,33 @@ export default function Ets() {
 
   const { loading } = state;
   const { total, page, pages, limit } = paginate;
-  const {
-    title,
-    image,
-    update,
-    formData,
-    type,
-    ouverture,
-    fermeture,
-    long,
-    lat,
-  } = ets;
+  const { title, image, update, formData } = type;
 
   function openModal(title) {
-    setEts({ ...ets, title });
+    setType({ ...type, title });
     setShowModal(true);
   }
 
   function closeModal() {
     setState({ ...state, loading: false, error: '' });
     setShowModal(false);
-    setEts({ ...ets, title: '', nom: '', description: '', image: '' });
+    setType({ ...type, title: '', nom: '', description: '', image: '' });
   }
 
   const handleChange = (value, name) => {
     setState({ ...state, loading: false, error: '' });
-    const { nom, description, long, lat } = value;
-    setEts({ ...ets, nom, description, long, lat });
+    const { nom, description } = value;
+    setType({ ...type, nom, description });
     formData.set(name.target.name, name.target.value);
-  };
-
-  const handleSelectChange = (value, name) => {
-    setState({ ...state, loading: false, error: '' });
-    setEts({ ...ets, type: value });
-    formData.set('type', value);
-  };
-
-  const handleSelectDateChange = (props) => (value) => {
-    setState({ ...state, loading: false, error: '' });
-    setEts({ ...ets, [props]: value });
-    formData.set(props, value);
   };
 
   const handleImageChange = (value) => {
     setState({ ...state, loading: false, error: '' });
-    setEts({
-      ...ets,
+    setType({
+      ...type,
       image: value[0] && value[0].blobFile,
     });
-    formData.append('image', value[0] && value[0].blobFile);
+    type.formData.append('image', value[0] && value[0].blobFile);
   };
 
   const handleChangePage = (data) => {
@@ -104,9 +76,9 @@ export default function Ets() {
 
   const handleEdit = (data) => {
     const { nom, description } = data;
-    setEts({
-      ...ets,
-      title: `Update ${nom}`,
+    setType({
+      ...type,
+      title: `Update ${nom}'s informations`,
       nom,
       description,
       update: true,
@@ -116,26 +88,14 @@ export default function Ets() {
 
   const onSubmitCreate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onCreateData(`/create/ets/${user._id}`, data);
+    const res = await onCreateData(`/create/type/${user._id}`, data);
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
     Alert.success(res.message, 3000);
     setState({ ...state, loading: false, success: res.message });
-    setEts({
-      nom: '',
-      title: '',
-      long: '',
-      lat: '',
-      ouverture: '',
-      fermeture: '',
-      description: '',
-      type: '',
-      image: '',
-      formData: new FormData(),
-    });
     setShowModal(false);
-    setRunEffect(!runEffect);
+    setRunEffect(true);
   };
 
   const onSubmitUpdate = async () => {
@@ -146,12 +106,12 @@ export default function Ets() {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/ets/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/commande/${user._id}?limit=${limit}&page=${page}`
       );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
       }
-      setAllEts(res.data);
+      setAllType(res && res.data);
       setPaginate({
         ...paginate,
         total: res.total,
@@ -161,56 +121,35 @@ export default function Ets() {
     })();
   }, [limit, runEffect, page]);
 
-  useEffect(() => {
-    (async () => {
-      setState({ ...state, loading: true });
-      const res = await onGetData(`/read/all/type/${user._id}?limit=0&page=1`);
-      if (res && res.error) {
-        return setState({ ...state, loading: false, error: res.error });
-      }
-      setAllType(res.data);
-      setState({ ...state, loading: false });
-    })();
-  }, []);
-
   return (
     <Layout>
       <Header
         parent='Home'
-        content='Establishment'
-        title='Establishment management'
-        handelClick={() => openModal('Create Establishment')}
-        create={true}
+        content='Order'
+        title='Order management'
+        create={false}
       />
 
       <section className='main-content'>
-        <EtsModal
+        <OrderModal
           title={title}
-          data={ets}
+          data={type}
           showModal={showModal}
           state={state}
-          typeData={allType.map((x) => {
-            return { label: x.nom, value: x._id };
-          })}
           closeModal={closeModal}
           btnStatus={image ? true : false}
           handleChange={handleChange}
           handleImageChange={handleImageChange}
-          handleSelectChange={handleSelectChange}
-          handleSelectDateChange={handleSelectDateChange}
           onSubmit={() =>
             update ? onSubmitUpdate(formData) : onSubmitCreate(formData)
           }
         />
         <div className='card'>
           <PaginationTable
-            data={allEts}
+            data={allType}
             total={total}
             page={page}
             pages={pages}
-            typeData={allType.map((x) => {
-              return { label: x.nom, value: x._id };
-            })}
             displayLength={limit}
             loading={loading}
             handleChangePage={handleChangePage}

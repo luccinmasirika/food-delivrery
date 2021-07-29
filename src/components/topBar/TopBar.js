@@ -4,8 +4,7 @@ import { signout } from '../../api/auth';
 import { withRouter } from 'react-router-dom';
 import { isAuthenticated } from '../../api/auth';
 import { API } from '../../config';
-import { getLogo } from "../../api/shop";
-
+import { onGetData } from '../../api';
 
 const TopBar = ({ history, window }) => {
   const { user } = isAuthenticated();
@@ -21,15 +20,26 @@ const TopBar = ({ history, window }) => {
     setUserData({ firstName, lastName, role, avatar });
   };
 
-  const [logo, setLogo] = useState("")
+  const [config, setConfig] = useState({
+    logo: 'icon.png',
+    icon: 'icon.png',
+  });
+
+  const { logo, icon } = config;
 
   useEffect(() => {
     init();
-    // (async function(){
-    //   const data = await getLogo()
-    //   setLogo(data.logo)
-    // })()
+    (async function () {
+      const res = await onGetData('/read/config/');
+      setConfig({
+        ...config,
+        logo: res.logo,
+        icon: res.icon,
+      });
+    })();
   }, []);
+
+  console.log('Config', config);
 
   const { firstName, lastName, role, avatar } = userData;
 
@@ -42,11 +52,17 @@ const TopBar = ({ history, window }) => {
               <h1>
                 <img
                   alt='Avatar'
-                  // src={`${API}/${logo}`}
-                  src="/logo.png"
+                  src={`${API}/${logo}`}
                   style={{ height: '30px' }}
                   id='logo'
                   className='toggle-none hidden-xs'
+                />
+                <img
+                  alt='icon'
+                  src={`${API}/${icon}`}
+                  style={{ height: '30px' }}
+                  className='logo-icon margin-r-10 hidden'
+                  id='icon'
                 />
               </h1>
             </a>
@@ -65,9 +81,9 @@ const TopBar = ({ history, window }) => {
               <li className='dropdown avtar-dropdown'>
                 <a className='dropdown-toggle' data-toggle='dropdown' href='#'>
                   <img
-                  alt="prodil"
+                    alt='prodil'
                     className='rounded-circle'
-                    src="/assets/img/avtar-4.png"
+                    src='/assets/img/avtar-4.png'
                     // src={`${API}${avatar}`}
                     width={30}
                   />

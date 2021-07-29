@@ -1,6 +1,7 @@
 import {
   Button,
   ControlLabel,
+  DatePicker,
   Divider,
   Form,
   FormControl,
@@ -18,10 +19,13 @@ export default function EtsModal({
   data,
   state,
   showModal,
+  typeData,
   closeModal,
   btnStatus,
   handleChange,
   handleImageChange,
+  handleSelectChange,
+  handleSelectDateChange,
   onSubmit,
 }) {
   return (
@@ -29,7 +33,6 @@ export default function EtsModal({
       <Modal.Header>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
-      {console.log('state', state)}
       <Modal.Body>
         {state.loading && (
           <Message
@@ -70,30 +73,73 @@ export default function EtsModal({
               Type <code>*</code>
             </ControlLabel>
             <InputPicker
-              data={[
-                { label: 'Eugenia 1', value: 'test 1' },
-                { label: 'Eugenia 2', value: 'test' },
-                { label: 'Eugenia 3', value: 'test' },
-                { label: 'Eugenia 4', value: 'test' },
-              ]}
-              defaultValue={'Julius'}
-              disabledItemValues={['Eugenia 2', 'test 1']}
+              data={typeData}
+              defaultValue={'Select type'}
+              onChange={handleSelectChange}
               block
             />
           </FormGroup>
+          {data.type && (
+            <>
+              <Divider>Hour</Divider>
+              <FormGroup>
+                <ControlLabel>
+                  Open <code>*</code>
+                </ControlLabel>
+                <DatePicker
+                  placeholder='Select Opening Hour'
+                  format='HH:mm'
+                  onChange={handleSelectDateChange('ouverture')}
+                  ranges={[]}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>
+                  Close <code>*</code>
+                </ControlLabel>
+                <DatePicker
+                  placeholder='Select Closure Hour'
+                  format='HH:mm'
+                  onChange={handleSelectDateChange('fermeture')}
+                  ranges={[]}
+                />
+              </FormGroup>
+            </>
+          )}
+          {data.type && (
+            <>
+              <Divider>Location</Divider>
+              <FormGroup>
+                <ControlLabel>
+                  Longitude <code>*</code>
+                </ControlLabel>
+                <FormControl name='long' value={data.long} />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>
+                  Latitude <code>*</code>
+                </ControlLabel>
+                <FormControl name='lat' value={data.lat} />
+              </FormGroup>
+            </>
+          )}
+          {data.type && (
+            <>
+              <Divider>Image</Divider>
+              <Uploader
+                name='image'
+                listType='picture'
+                disabled={btnStatus}
+                autoUpload={false}
+                onChange={handleImageChange}
+              >
+                <button>
+                  <Icon icon='camera-retro' size='lg' />
+                </button>
+              </Uploader>
+            </>
+          )}
         </Form>
-        <Divider>Image</Divider>
-        <Uploader
-          name='image'
-          listType='picture'
-          disabled={btnStatus}
-          autoUpload={false}
-          onChange={handleImageChange}
-        >
-          <button>
-            <Icon icon='camera-retro' size='lg' />
-          </button>
-        </Uploader>
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={onSubmit} appearance='primary'>

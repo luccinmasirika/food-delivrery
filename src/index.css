@@ -33,22 +33,49 @@ button {
   object-fit: cover;
 }
 
-.rs-picker-default .rs-picker-toggle.rs-btn {
+.rs-picker-default .rs-picker-toggle.rs-btn,
+.card-body::-webkit-scrollbar {
   width: -webkit-fill-available !important;
 }
 .rs-btn-primary {
   background: #ff8248 !important;
 }
 
-.rs-modal-body::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+.rs-picker-toggle-value {
+  color: #000 !important;
+}
+
+.rs-picker-select-menu-item.rs-picker-select-menu-item-active,
+.rs-picker-select-menu-item.rs-picker-select-menu-item-active:hover {
+  color: #7bcb4d !important;
+  background: #7bcb4d27 !important;
+}
+
+.rs-modal-body::-webkit-scrollbar,
+.card-body::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
   overflow: -moz-scrollbars-none;
   -ms-overflow-style: none;
 }
 
-.rs-modal-body::-webkit-scrollbar-thumb {
-  background-color: gainsboro;
+.rs-modal-body::-webkit-scrollbar-thumb,
+.card-body::-webkit-scrollbar-thumb {
+  background-color: #8d8d8d;
+}
+
+.rs-table-scrollbar-vertical .rs-table-scrollbar-handle {
+  width: 4px !important;
+}
+
+.category-body {
+  border-top: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.fa-navicon:before,
+.fa-reorder:before,
+.fa-bars:before {
+  color: #fff;
 }
 
 .edit-btn {
@@ -108,6 +135,13 @@ button {
   }
   .top-bar.primary-top-bar {
     box-shadow: 0 0 15px 10px #0a111111;
+  }
+  .rs-modal-xs {
+    width: auto !important;
+  }
+
+  .rs-modal-dialog {
+    margin: 15px;
   }
 }
 

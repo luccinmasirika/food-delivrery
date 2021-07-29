@@ -90,7 +90,6 @@ const NavBar = ({ history, window }) => {
               </Link>
             </li>
 
-
             <li
               className={`nav-item ${isActive(history, '/meal')}`}
               onClick={() => setDropDown('none')}
@@ -98,6 +97,16 @@ const NavBar = ({ history, window }) => {
               <Link to='/meal' className='nav-link'>
                 <i className='fa fa-coffee' />
                 <span className='toggle-none'>Meal </span>
+              </Link>
+            </li>
+
+            <li
+              className={`nav-item ${isActive(history, '/order')}`}
+              onClick={() => setDropDown('none')}
+            >
+              <Link to='/order' className='nav-link'>
+                <i className='fa fa-shopping-basket' />
+                <span className='toggle-none'>Order </span>
               </Link>
             </li>
 

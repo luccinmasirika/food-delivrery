@@ -12,13 +12,12 @@ import {
   Uploader,
 } from 'rsuite';
 
-export default function TypeModal({
+export default function CategoryModal({
   title,
   data,
   state,
   showModal,
   closeModal,
-  btnStatus,
   handleChange,
   handleImageChange,
   onSubmit,
@@ -28,7 +27,6 @@ export default function TypeModal({
       <Modal.Header>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
-
       <Modal.Body>
         {state.loading && (
           <Message
@@ -52,30 +50,7 @@ export default function TypeModal({
             </ControlLabel>
             <FormControl name='nom' value={data.nom} />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>
-              Description <code>*</code>
-            </ControlLabel>
-            <FormControl
-              rows={3}
-              name='description'
-              value={data.description}
-              componentClass='textarea'
-            />
-          </FormGroup>
         </Form>
-        <Divider>Image</Divider>
-        <Uploader
-          name='image'
-          listType='picture'
-          disabled={btnStatus}
-          autoUpload={false}
-          onChange={handleImageChange}
-        >
-          <button>
-            <Icon icon='camera-retro' size='lg' />
-          </button>
-        </Uploader>
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={onSubmit} appearance='primary'>
