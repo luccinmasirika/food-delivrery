@@ -29,7 +29,7 @@ const NoMatch = () => {
                       id='copyright-link'
                       href='https://uptodatedevelopers.com'
                     >
-                      Uptodate Developpers
+                      Uptodate Developers
                     </a>
                   </span>{' '}
                   All rights reserved.

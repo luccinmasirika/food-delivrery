@@ -13,6 +13,7 @@ const Type = lazy(() => import('./components/type/Type'));
 const Ets = lazy(() => import('./components/ets/Ets'));
 const Menu = lazy(() => import('./components/menu/Menu'));
 const Order = lazy(() => import('./components/order/Order'));
+const Meal = lazy(() => import('./components/meal/Meal'));
 
 //LAnding page
 const Why = lazy(() => import('./components/why/Why'));
@@ -48,6 +49,7 @@ function App() {
           <PrivateRoute path='/type' exact component={Type} />
           <PrivateRoute path='/ets' exact component={Ets} />
           <PrivateRoute path='/menu' exact component={Menu} />
+          <PrivateRoute path='/meal' exact component={Meal} />
           <PrivateRoute path='/order' exact component={Order} />
           <PrivateRoute path='/why-choose-us' exact component={Why} />
           <PrivateRoute path='/banner' exact component={Banner} />

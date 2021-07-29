@@ -16,6 +16,8 @@ export default function PaginationTable({
   displayLength,
   handleAction,
   onSubmitAnableDisable,
+  onPromo,
+  onDisableUnable,
 }) {
   const [show, setShow] = useState(false);
   const [state, setState] = useState('');
@@ -52,7 +54,13 @@ export default function PaginationTable({
             proceed?
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={close} color='red'>
+            <Button
+              onClick={() => {
+                onDisableUnable(data);
+                setShow(false);
+              }}
+              color='red'
+            >
               Disable
             </Button>
             <Button onClick={close} appearance='subtle'>
@@ -89,14 +97,7 @@ export default function PaginationTable({
 
         <Table.Column width={200} resizable={true}>
           <Table.HeaderCell>Nom</Table.HeaderCell>
-          <Table.Cell>
-            {(data) => (
-              <>
-                {data.nom}{' '}
-                <span className='badge badge-primary badge-pill'>2</span>
-              </>
-            )}
-          </Table.Cell>
+          <Table.Cell dataKey='nom' />
         </Table.Column>
 
         <Table.Column width={200}>
@@ -104,9 +105,14 @@ export default function PaginationTable({
           <Table.Cell>{(data) => data.ets.nom}</Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200}>
-          <Table.HeaderCell>Category</Table.HeaderCell>
-          <Table.Cell>{(data) => data.category.nom}</Table.Cell>
+        <Table.Column width={150} flexGrow={1}>
+          <Table.HeaderCell>Prix</Table.HeaderCell>
+          <Table.Cell>{(data) => <span>$ {data.prix}</span>}</Table.Cell>
+        </Table.Column>
+
+        <Table.Column width={150} flexGrow={1}>
+          <Table.HeaderCell>Delais</Table.HeaderCell>
+          <Table.Cell>{(data) => <span>{data.delais} Min</span>}</Table.Cell>
         </Table.Column>
 
         <Table.Column width={100} flexGrow={1}>
@@ -138,7 +144,7 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={120} align='center' fixed='right'>
+        <Table.Column width={180} align='center' fixed='right'>
           <Table.HeaderCell>Action</Table.HeaderCell>
 
           <Table.Cell>
@@ -153,9 +159,7 @@ export default function PaginationTable({
                   </button>
                   <button
                     onClick={() =>
-                      data.disable
-                        ? onSubmitAnableDisable(data)
-                        : onDisable(data)
+                      data.disable ? onDisableUnable(data) : onDisable(data)
                     }
                     class={`btn ${
                       !data.disable ? 'btn-danger' : 'btn-info'
@@ -164,6 +168,14 @@ export default function PaginationTable({
                     <i
                       class={`fa ${!data.disable ? 'fa-times' : 'fa-check'}`}
                     ></i>
+                  </button>
+                  <button
+                    onClick={() => onPromo(data)}
+                    class={`btn ${
+                      !data.promo ? 'bg-light' : 'btn-warning'
+                    } btn-border btn-rounded btn-sm m-1`}
+                  >
+                    <i class='fa fa-star'></i>
                   </button>
                 </>
               );

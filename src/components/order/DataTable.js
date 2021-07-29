@@ -57,7 +57,7 @@ export default function PaginationTable({
 
   return (
     <div>
-      <Panel header='Show filters' collapsible>
+      <Panel header='Filters' collapsible>
         <PlaceholderParagraph />
       </Panel>
       <Table height={370} data={data} rowHeight={60} loading={loading}>

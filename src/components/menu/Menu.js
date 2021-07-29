@@ -145,13 +145,15 @@ export default function Menu() {
 
   const onSubmitCatCreate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onCreateData(`/create/category/${user._id}`, data);
+    const res = await onCreateData(`/create/category/${user._id}`, {
+      nom: data.nom,
+    });
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
     Alert.success(res.message, 3000);
     setState({ ...state, loading: false, success: res.message });
-    setShowModal(false);
+    setShowCatModal(false);
     setRunEffect(!runEffect);
   };
 

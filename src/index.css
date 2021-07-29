@@ -72,10 +72,27 @@ button {
   border-top: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.fa-navicon:before,
-.fa-reorder:before,
-.fa-bars:before {
+.rs-steps-item-status-process
+  .rs-steps-item-icon-wrapper:not(.rs-steps-item-custom-icon) {
+  border-color: #ff8248 !important;
+  background: #ff8248 !important;
   color: #fff;
+}
+
+.rs-steps-item-status-finish
+  .rs-steps-item-icon-wrapper:not(.rs-steps-item-custom-icon)
+  .rs-steps-item-icon::before {
+  color: #ff8248 !important;
+}
+
+.rs-steps-item-status-finish
+  .rs-steps-item-icon-wrapper:not(.rs-steps-item-custom-icon) {
+  border-color: #ff8248 !important;
+}
+
+.rs-steps-item-tail,
+.rs-steps-item-title::after {
+  background-color: rgb(56, 56, 56) !important;
 }
 
 .edit-btn {
@@ -130,8 +147,8 @@ button {
 }
 
 @media (max-width: 767px) {
-  .hidden {
-    display: inline;
+  #icon {
+    display: inline !important;
   }
   .top-bar.primary-top-bar {
     box-shadow: 0 0 15px 10px #0a111111;
