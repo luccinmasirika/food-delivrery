@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
-import 'bootstrap/dist/js/bootstrap';
 import 'rsuite/dist/styles/rsuite-default.css';
+import 'bootstrap/dist/js/bootstrap';
+import './index.css';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 

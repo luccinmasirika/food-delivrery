@@ -39,8 +39,6 @@ const TopBar = ({ history, window }) => {
     })();
   }, []);
 
-  console.log('Config', config);
-
   const { firstName, lastName, role, avatar } = userData;
 
   return (

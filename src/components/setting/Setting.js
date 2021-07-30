@@ -88,7 +88,6 @@ const Setting = () => {
     const user = { firstName, lastName, email, role, password };
     setState({ error: false, success: false, loader: true });
     const data = await updateUser(id, token, user);
-    console.log('data', data);
     if (data.error) {
       return setState({ ...state, error: data.error, loader: false });
     }
@@ -100,8 +99,6 @@ const Setting = () => {
   const onClose = () => {
     setState({ ...state, error: '', success: false });
   };
-
-  console.log('All', allDevise);
 
   return (
     <Layout>
@@ -241,7 +238,6 @@ const Setting = () => {
                       onSuccess={(response, file) => {
                         setUploading(false);
                         Alert.success('Uploaded successfully');
-                        console.log(response);
                       }}
                       onError={() => {
                         setFileInfo(null);
@@ -284,7 +280,6 @@ const Setting = () => {
                       onSuccess={(response, file) => {
                         setUploading(false);
                         Alert.success('Uploaded successfully');
-                        console.log(response);
                       }}
                       onError={() => {
                         setFileInfo(null);

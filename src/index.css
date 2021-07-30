@@ -146,6 +146,10 @@ button {
   overflow: auto;
 }
 
+.text-tab {
+  color: rgb(56, 56, 56);
+}
+
 @media (max-width: 767px) {
   #icon {
     display: inline !important;

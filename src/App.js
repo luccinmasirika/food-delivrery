@@ -57,7 +57,7 @@ function App() {
           <PrivateRoute path='/contact-us' exact component={ContactUs} />
           <PrivateRoute path='/download' exact component={Download} />
           <PrivateRoute path='/app-screen' exact component={AppScreen} />
-          {/* <AdminRoute path='/users' exact component={Users} /> */}
+          <AdminRoute path='/users' exact component={Users} />
           <PrivateRoute path='/setting' exact component={Setting} />
           <Route path='/login' exact component={Login} />
           <Route path='*' exact component={NoMatch} />

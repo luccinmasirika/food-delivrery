@@ -1,60 +1,71 @@
-import React, { useState, useEffect } from "react";
-import CardUsers from "../../sections/CardUsers";
-import Footer from "../footer/Footer";
-import Layout from "../Layout";
-import Header from "../navBar/Header";
-import ActionButton from "../../sections/ActionButton";
-import Input from "../../sections/Input";
-import LinearProgress from "@material-ui/core/LinearProgress";
-import {
-  createUser,
-  getUsers,
-  removeUser,
-  getUser,
-  updateUser,
-} from "../../api/shop";
-import { isAuthenticated } from "../../api/auth";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import React, { useState, useEffect } from 'react';
+import CardLivreur from '../../sections/CardLivreur';
+import CardClient from '../../sections/CardClient';
+import CardAdmin from '../../sections/CardAdmin';
+import Footer from '../footer/Footer';
+import Layout from '../Layout';
+import Header from '../navBar/Header';
+import ActionButton from '../../sections/ActionButton';
+import Input from '../../sections/Input';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import { onCreateData, onGetData } from '../../api';
+import { createUser, removeUser, getUser, updateUser } from '../../api/shop';
+import { isAuthenticated } from '../../api/auth';
+import { Loader, Pagination } from 'rsuite';
 
 const Users = () => {
-  const [users, setUsers] = useState("");
+  const [allUsers, setAllUsers] = useState('');
+  const [allClients, setAllClients] = useState('');
+  const [allAdmins, setAllAdmins] = useState('');
+  const [allLivreurs, setAllLivreurs] = useState('');
   const [update, setUpdate] = useState({
-    updateFirstName: "",
-    updateLastName: "",
-    updateRole: "",
-    id: "",
+    updateFirstName: '',
+    updateLastName: '',
+    updateRole: '',
+    id: '',
   });
 
   const [create, setCreate] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    role: "",
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    role: '',
   });
 
   const [state, setState] = useState({
-    loader: false,
-    success: false,
-    error: "",
+    error: '',
+    success: '',
+    loading: false,
   });
 
-  const init = async () => {
-    const data = await getUsers(user._id, token);
-    if (data.error) {
-      setState({ ...state, error: data.error });
-    }
-    setUsers(data);
-  };
+  const [paginate, setPaginate] = useState({
+    total: 0,
+    page: 0,
+    pages: 0,
+    limit: 10,
+  });
+
+  const [runEffect, setRunEffect] = useState(false);
+  const [refreshClient, setRefreshClient] = useState(false);
+  const [refreshLivreur, setRefreshLivreur] = useState(false);
+
+  const { total, page, pages, limit } = paginate;
+  const { loading } = state;
 
   const { loader, success, error } = state;
   const { firstName, lastName, role, password, email } = create;
   const { updateFirstName, updateLastName, updateRole, id } = update;
   const { user, token } = isAuthenticated();
 
-  useEffect(() => {
-    init();
-  }, []);
+  const handleChangePage = (data) => {
+    setPaginate({ ...paginate, page: data });
+  };
+
+  const handleChangeLength = (data) => {
+    setState({ ...state, loading: true });
+    setPaginate({ ...paginate, limit: data, page: 1 });
+  };
 
   const handelChangeCreate = (props) => (event) => {
     setState({ error: false, success: false, loader: false });
@@ -83,14 +94,13 @@ const Users = () => {
     setState({ error: false, success: false, loader: true });
     const data = await createUser(token, create);
     if (data.error) return setState({ error: data.error, loader: false });
-    init();
     setState({ error: false, success: data.message, loader: false });
     setCreate({
-      firstName: "",
-      lastName: "",
-      role: "",
-      password: "",
-      email: "",
+      firstName: '',
+      lastName: '',
+      role: '',
+      password: '',
+      email: '',
     });
   };
 
@@ -112,94 +122,93 @@ const Users = () => {
       updateLastName: data.lastName,
       updateRole: data.role,
     });
-    init();
   };
 
   const onCancel = () => {
     setCreate({
-      firstName: "",
-      lastName: "",
-      role: "",
-      password: "",
-      email: "",
+      firstName: '',
+      lastName: '',
+      role: '',
+      password: '',
+      email: '',
     });
     setState({ error: false, success: false, loader: false });
   };
 
   const createModal = () => (
     <div
-      class="modal fade myModal"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="myDefaultModalLabel"
+      class='modal fade myModal'
+      tabindex='-1'
+      role='dialog'
+      aria-labelledby='myDefaultModalLabel'
     >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
+      <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+          <div class='modal-header'>
             <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
+              type='button'
+              class='close'
+              data-dismiss='modal'
+              aria-label='Close'
               onClick={onCancel}
             >
-              <span aria-hidden="true" class="fa fa-times"></span>
+              <span aria-hidden='true' class='fa fa-times'></span>
             </button>
-            <h5 class="modal-title" id="myDefaultModalLabel">
+            <h5 class='modal-title' id='myDefaultModalLabel'>
               Nouvel utilisateur
             </h5>
           </div>
           {loader && (
-            <LinearProgress color="secondary" style={{ width: "100%" }} />
+            <LinearProgress color='secondary' style={{ width: '100%' }} />
           )}
-          <div class="modal-body">
+          <div class='modal-body'>
             {(error || success) && (
               <div
                 class={`alert bg-${
-                  error ? "danger" : "success"
+                  error ? 'danger' : 'success'
                 } alert-dismissible fade show`}
-                role="alert"
+                role='alert'
               >
-                <strong>{error ? "Erreur" : "Succès"}!</strong>{" "}
+                <strong>{error ? 'Erreur' : 'Succès'}!</strong>{' '}
                 {error ? error : success}
               </div>
             )}
             <Input
-              icon="fa fa-user"
-              action={handelChangeCreate("firstName")}
+              icon='fa fa-user'
+              action={handelChangeCreate('firstName')}
               value={firstName}
-              type="text"
-              placeholder="Nom"
+              type='text'
+              placeholder='Nom'
             />
             <Input
-              icon="fa fa-user"
-              action={handelChangeCreate("lastName")}
+              icon='fa fa-user'
+              action={handelChangeCreate('lastName')}
               value={lastName}
-              type="text"
-              placeholder="Postnom"
+              type='text'
+              placeholder='Postnom'
             />
             <Input
-              icon="fa fa-at"
-              action={handelChangeCreate("email")}
+              icon='fa fa-at'
+              action={handelChangeCreate('email')}
               value={email}
-              type="text"
-              placeholder="Email"
+              type='text'
+              placeholder='Email'
             />
             <Input
-              icon="fa fa-unlock"
-              action={handelChangeCreate("password")}
+              icon='fa fa-unlock'
+              action={handelChangeCreate('password')}
               value={password}
-              type="password"
-              placeholder="Mot de passe"
+              type='password'
+              placeholder='Mot de passe'
             />
             {user.role === 0 && (
-              <div className="form-group">
+              <div className='form-group'>
                 <select
-                  onChange={handelChangeCreate("role")}
-                  class="form-control"
+                  onChange={handelChangeCreate('role')}
+                  class='form-control'
                   value={role}
                 >
-                  <option value="">Rôle</option>
+                  <option value=''>Rôle</option>
                   <option value={0}>Administrateur</option>
                   <option value={1}>Distributeur</option>
                   <option value={2}>Vendeur</option>
@@ -219,64 +228,64 @@ const Users = () => {
 
   const updateModal = () => (
     <div
-      class="modal fade myModalUpdate"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="myDefaultModalLabel"
+      class='modal fade myModalUpdate'
+      tabindex='-1'
+      role='dialog'
+      aria-labelledby='myDefaultModalLabel'
     >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
+      <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+          <div class='modal-header'>
             <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
+              type='button'
+              class='close'
+              data-dismiss='modal'
+              aria-label='Close'
               onClick={onCancel}
             >
-              <span aria-hidden="true" class="fa fa-times"></span>
+              <span aria-hidden='true' class='fa fa-times'></span>
             </button>
-            <h5 class="modal-title" id="myDefaultModalLabel">
+            <h5 class='modal-title' id='myDefaultModalLabel'>
               Modifier l'utilisateur
             </h5>
           </div>
           {loader && (
-            <LinearProgress color="secondary" style={{ width: "100%" }} />
+            <LinearProgress color='secondary' style={{ width: '100%' }} />
           )}
-          <div class="modal-body">
+          <div class='modal-body'>
             {(error || success) && (
               <div
                 class={`alert bg-${
-                  error ? "danger" : "success"
+                  error ? 'danger' : 'success'
                 } alert-dismissible fade show`}
-                role="alert"
+                role='alert'
               >
-                <strong>{error ? "Erreur" : "Succès"}!</strong>{" "}
+                <strong>{error ? 'Erreur' : 'Succès'}!</strong>{' '}
                 {error ? error : success}
               </div>
             )}
             <Input
-              icon="fa fa-user"
-              action={handelChangeUpdate("updateFirstName")}
+              icon='fa fa-user'
+              action={handelChangeUpdate('updateFirstName')}
               value={updateFirstName}
-              type="text"
-              placeholder="Nom"
+              type='text'
+              placeholder='Nom'
             />
             <Input
-              icon="fa fa-user"
-              action={handelChangeUpdate("updateLastName")}
+              icon='fa fa-user'
+              action={handelChangeUpdate('updateLastName')}
               value={updateLastName}
-              type="text"
-              placeholder="Postnom"
+              type='text'
+              placeholder='Postnom'
             />
             {user._id !== id && (
-              <div className="form-group">
+              <div className='form-group'>
                 <select
-                  onChange={handelChangeUpdate("updateRole")}
-                  class="form-control"
+                  onChange={handelChangeUpdate('updateRole')}
+                  class='form-control'
                   value={updateRole}
                 >
-                  <option value="">Rôle</option>
+                  <option value=''>Rôle</option>
                   <option value={0}>Administrateur</option>
                   <option value={1}>Distributeur</option>
                   <option value={2}>Vendeur</option>
@@ -300,42 +309,265 @@ const Users = () => {
     if (data.error) {
       return setState({ error: data.error, success: false, loader: false });
     }
-    init();
     setState({ error: false, success: false, loader: false });
   };
+
+  useEffect(() => {
+    (async () => {
+      setState({ ...state, loading: true });
+      const res = await onGetData(
+        `/read/all/client/${user._id}?limit=${limit}&page=${page}`
+      );
+      if (res && res.error) {
+        return setState({ ...state, loading: false, error: res.error });
+      }
+      setAllClients(res && res.data);
+      setPaginate({
+        ...paginate,
+        total: res.total,
+        page: res.page,
+      });
+      setState({ ...state, loading: false });
+    })();
+  }, [limit, runEffect, page]);
+
+  useEffect(() => {
+    (async () => {
+      setState({ ...state, loading: true });
+      const res = await onGetData(
+        `/read/all/livreur/${user._id}?limit=${limit}&page=${page}`
+      );
+      if (res && res.error) {
+        return setState({ ...state, loading: false, error: res.error });
+      }
+      setAllLivreurs(res && res.data);
+      setPaginate({
+        ...paginate,
+        total: res.total,
+        page: res.page,
+      });
+      setState({ ...state, loading: false });
+    })();
+  }, [limit, runEffect, page]);
+
+  useEffect(() => {
+    (async () => {
+      setState({ ...state, loading: true });
+      const res = await onGetData(
+        `/read/all/admin/${user._id}?limit=${limit}&page=${page}`
+      );
+      if (res && res.error) {
+        return setState({ ...state, loading: false, error: res.error });
+      }
+      setAllAdmins(res && res.data);
+      setPaginate({
+        ...paginate,
+        total: res.total,
+        page: res.page,
+      });
+      setState({ ...state, loading: false });
+    })();
+  }, [limit, runEffect, page]);
 
   return (
     <Layout>
       <Header
-        parent="Accueil"
-        content="Utilisateurs"
-        title="Liste de utitlisateurs"
+        parent='Accueil'
+        content='Utilisateurs'
+        title='Liste de utitlisateurs'
         create={true}
       />
       {createModal()}
       {updateModal()}
-      <section className="main-content">
-        <div className="row" style={{ position: "relative", minHeight: 400}}>
-        {(!users || loader) && (
-            <div className="table-flex-center-user">
-              <CircularProgress />
+      <section className='main-content'>
+        <div className='card'>
+          <div className='card-body'>
+            <div className='tabs'>
+              {/* Nav tabs */}
+              <ul className='nav nav-tabs justify-content-around'>
+                <li className='nav-item' role='presentation'>
+                  <a
+                    className='nav-link text-tab active'
+                    href='#home'
+                    aria-controls='home'
+                    role='tab'
+                    data-toggle='tab'
+                    aria-selected='true'
+                  >
+                    Clients
+                  </a>
+                </li>
+                <li className='nav-item' role='presentation'>
+                  <a
+                    className='nav-link text-tab'
+                    href='#profile'
+                    aria-controls='profile'
+                    role='tab'
+                    data-toggle='tab'
+                    aria-selected='false'
+                  >
+                    Delivery persons
+                  </a>
+                </li>
+                <li className='nav-item' role='presentation'>
+                  <a
+                    className='nav-link text-tab'
+                    href='#messages'
+                    aria-controls='messages'
+                    role='tab'
+                    data-toggle='tab'
+                    aria-selected='false'
+                  >
+                    Admin
+                  </a>
+                </li>
+              </ul>
+              {/* Tab panes */}
+              <div className='tab-content'>
+                {loading && (
+                  <Loader backdrop content='loading...' style={{ zIndex: 2 }} />
+                )}
+                <div role='tabpanel' className='tab-pane active' id='home'>
+                  <div
+                    className='row'
+                    style={{ position: 'relative', minHeight: 400 }}
+                  >
+                    {allClients &&
+                      allClients.map((_, i) => {
+                        if (_._id !== user._id) {
+                          return (
+                            <CardClient
+                              key={_._id}
+                              data={_}
+                              onLoad={loader}
+                              onEdit={() => onEdit(_._id)}
+                              onDisable={() => onDisable(_._id)}
+                            />
+                          );
+                        }
+                      })}
+                    {allClients &&
+                      allClients.map((_, i) => {
+                        if (_._id !== user._id) {
+                          return (
+                            <CardClient
+                              key={_._id}
+                              data={_}
+                              onLoad={loader}
+                              onEdit={() => onEdit(_._id)}
+                              onDisable={() => onDisable(_._id)}
+                            />
+                          );
+                        }
+                      })}
+                    {allClients &&
+                      allClients.map((_, i) => {
+                        if (_._id !== user._id) {
+                          return (
+                            <CardClient
+                              key={_._id}
+                              data={_}
+                              onLoad={loader}
+                              onEdit={() => onEdit(_._id)}
+                              onDisable={() => onDisable(_._id)}
+                            />
+                          );
+                        }
+                      })}
+                  </div>
+                  <div className=''>
+                    <Pagination
+                      prev={true}
+                      next={true}
+                      first={true}
+                      last={true}
+                      ellipsis={true}
+                      boundaryLinks={true}
+                      activePage={1}
+                      pages={30}
+                      maxButtons={5}
+                      // activePage={this.state.activePage}
+                      // onSelect={this.handleSelect}
+                    />
+                  </div>
+                </div>
+                <div role='tabpanel' className='tab-pane' id='profile'>
+                  <div
+                    className='row'
+                    style={{ position: 'relative', minHeight: 400 }}
+                  >
+                    {allLivreurs &&
+                      allLivreurs.map((_, i) => {
+                        if (_._id !== user._id) {
+                          return (
+                            <CardLivreur
+                              key={_._id}
+                              data={_}
+                              onLoad={loader}
+                              onEdit={() => onEdit(_._id)}
+                              onDisable={() => onDisable(_._id)}
+                            />
+                          );
+                        }
+                      })}
+                  </div>
+                  <div className=''>
+                    <Pagination
+                      prev={true}
+                      next={true}
+                      first={true}
+                      last={true}
+                      ellipsis={true}
+                      boundaryLinks={true}
+                      activePage={1}
+                      pages={30}
+                      maxButtons={5}
+                      // activePage={this.state.activePage}
+                      // onSelect={this.handleSelect}
+                    />
+                  </div>
+                </div>
+                <div role='tabpanel' className='tab-pane' id='messages'>
+                  <div
+                    className='row'
+                    style={{ position: 'relative', minHeight: 400 }}
+                  >
+                    {allAdmins &&
+                      allAdmins.map((_, i) => {
+                        if (_._id !== user._id) {
+                          return (
+                            <CardAdmin
+                              key={_._id}
+                              data={_}
+                              onLoad={loader}
+                              onEdit={() => onEdit(_._id)}
+                              onDisable={() => onDisable(_._id)}
+                            />
+                          );
+                        }
+                      })}
+                  </div>
+                  <div className=''>
+                    <Pagination
+                      prev={true}
+                      next={true}
+                      first={true}
+                      last={true}
+                      ellipsis={true}
+                      boundaryLinks={true}
+                      activePage={1}
+                      pages={30}
+                      maxButtons={5}
+                      // activePage={this.state.activePage}
+                      // onSelect={this.handleSelect}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-          {users &&
-            users.map((_, i) => {
-              if (_._id !== user._id) {
-                return (
-                  <CardUsers
-                    key={_._id}
-                    data={_}
-                    onLoad={loader}
-                    onEdit={() => onEdit(_._id)}
-                    onDisable={() => onDisable(_._id)}
-                  />
-                );
-              }
-            })}
+          </div>
         </div>
+
         <Footer />
       </section>
     </Layout>
