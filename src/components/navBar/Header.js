@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Header = ({ parent, title, content, create, handelClick }) => {
+const Header = ({ parent, title, content, create, handelClick, text }) => {
   return (
     <div className='row page-header'>
       <div className='col-md-6 align-self-center'>
@@ -18,6 +18,7 @@ const Header = ({ parent, title, content, create, handelClick }) => {
             href='#'
             data-toggle='modal'
             data-target='.myModal'
+            title={text}
             onClick={handelClick}
             className='btn btn-success box-shadow btn-icon btn-rounded'
           >

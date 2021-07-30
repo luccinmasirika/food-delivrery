@@ -154,10 +154,12 @@ export default function PaginationTable({
                   <button
                     onClick={() => handleAction(data)}
                     class='btn btn-success btn-border btn-rounded btn-sm m-1'
+                    title='Edit meal' 
                   >
                     <i class='fa fa-edit'></i>
                   </button>
                   <button
+                  title={data.disable ? 'Activate' : 'Disable'}
                     onClick={() =>
                       data.disable ? onDisableUnable(data) : onDisable(data)
                     }
@@ -171,6 +173,7 @@ export default function PaginationTable({
                   </button>
                   <button
                     onClick={() => onPromo(data)}
+                    title={data.promo ? 'Promote' : 'Unpromote'}
                     class={`btn ${
                       !data.promo ? 'bg-light' : 'btn-warning'
                     } btn-border btn-rounded btn-sm m-1`}

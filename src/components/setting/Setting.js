@@ -329,16 +329,18 @@ const Setting = () => {
                           >
                             <span>
                               {_.nom}{' '}
-                              <em className='badge badge-indigo'>{_.taux} </em>
+                              <em title='Exchange rate' className='badge badge-indigo'>{_.taux} </em>
                             </span>
-                            <IconButton icon={<Icon icon='edit2' />} />
+                            <span title='Edit currency'>
+                              <IconButton icon={<Icon icon='edit2' />} />
+                            </span>
                           </li>
                         ))}
                     </ul>
                   </div>
                   <div className='card-footer '>
                     <h6 className='float-left'>Currency</h6>
-                    <span className='float-right'>
+                    <span title='Add new currency' className='float-right'>
                       <IconButton icon={<Icon icon='plus-circle' />} />
                     </span>
                   </div>
@@ -365,7 +367,9 @@ const Setting = () => {
                             <em className='text-indigo'>USD </em>
                             <em className='badge badge-indigo'>1 </em>
                           </span>
-                          <IconButton icon={<Icon icon='edit2' />} />
+                          <span title='Edit main currency'>
+                            <IconButton icon={<Icon icon='edit2' />} />
+                          </span>
                         </div>
                       </li>
                       <li
@@ -378,7 +382,9 @@ const Setting = () => {
                             <em className='text-indigo'>5 </em>
                             <em className='badge badge-indigo'>Km </em>
                           </span>
-                          <IconButton icon={<Icon icon='edit2' />} />
+                          <span title='Edit delivery radius'>
+                            <IconButton icon={<Icon icon='edit2' />} />
+                          </span>
                         </div>
                       </li>
                     </ul>

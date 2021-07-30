@@ -203,6 +203,7 @@ export default function Menu() {
         parent='Home'
         content='Menu'
         title='Menu management'
+        text='Create new menu'
         handelClick={() => openModal('Create a menu')}
         create={true}
       />
@@ -278,7 +279,11 @@ export default function Menu() {
                         className='list-group-item d-flex justify-content-between align-items-center'
                       >
                         {_.nom}
-                        <span className='badge badge-primary badge-pill'>
+                        <span
+                          title='Menu'
+                          style={{ cursor: 'help' }}
+                          className='badge badge-primary badge-pill'
+                        >
                           {_.menu.length}
                         </span>
                       </li>
@@ -287,6 +292,7 @@ export default function Menu() {
               </div>
               <div className='card-footer '>
                 <button
+                  title='Create new category'
                   onClick={() => openCatModal('Create new category')}
                   class='btn btn-success btn-border btn-rounded btn-sm float-right'
                 >

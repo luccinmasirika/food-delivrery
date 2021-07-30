@@ -232,6 +232,7 @@ export default function Meal() {
         parent='Home'
         content='Meal'
         title='Meal management'
+        text='Create new meal'
         handelClick={() => openModal('Create meal')}
         create={true}
       />

@@ -84,13 +84,13 @@ export default function MealModal({
 
               <FormGroup>
                 <ControlLabel>
-                  Establisment <code>*</code>
+                Establishment <code>*</code>
                 </ControlLabel>
                 <InputPicker
                   data={etsData}
                   name='ets'
                   value={data.ets}
-                  defaultValue={'Select establisment'}
+                  defaultValue={'Select Establishment'}
                   onChange={handleSelectChange('ets')}
                   block
                 />

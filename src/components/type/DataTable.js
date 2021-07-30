@@ -40,7 +40,13 @@ export default function PaginationTable({
             {(data) => (
               <>
                 {data.nom}{' '}
-                <span className='badge badge-primary badge-pill'>2</span>
+                <span
+                  title='Establishment'
+                  style={{ cursor: 'help' }}
+                  className='badge badge-primary badge-pill'
+                >
+                  2
+                </span>
               </>
             )}
           </Table.Cell>
@@ -65,6 +71,7 @@ export default function PaginationTable({
             {(data) => {
               return (
                 <button
+                  title='Edit'
                   onClick={() => handleAction(data)}
                   class='btn btn-success btn-border btn-rounded btn-sm'
                 >
@@ -75,8 +82,6 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
       </Table>
-
-      {console.log('tot', page, total)}
 
       <TablePagination
         lengthMenu={[

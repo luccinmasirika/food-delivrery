@@ -125,7 +125,13 @@ export default function PaginationTable({
             {(data) => (
               <>
                 {data.nom}{' '}
-                <span className='badge badge-primary badge-pill'>200</span>
+                <span
+                  title='Menu'
+                  style={{ cursor: 'help' }}
+                  className='badge badge-primary badge-pill'
+                >
+                  200
+                </span>
               </>
             )}
           </Table.Cell>
@@ -199,11 +205,13 @@ export default function PaginationTable({
                 <>
                   <button
                     onClick={() => handleAction(data)}
+                    title='Edit'
                     class='btn btn-success btn-border btn-rounded btn-sm m-1'
                   >
                     <i class='fa fa-edit'></i>
                   </button>
                   <button
+                    title={data.disable ? 'Activate' : 'Disable'}
                     onClick={() =>
                       data.disable
                         ? onSubmitAnableDisable(data)

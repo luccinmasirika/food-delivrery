@@ -179,6 +179,7 @@ export default function Ets() {
         parent='Home'
         content='Establishment'
         title='Establishment management'
+        text='Create new establishment'
         handelClick={() => openModal('Create Establishment')}
         create={true}
       />

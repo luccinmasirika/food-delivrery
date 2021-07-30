@@ -80,12 +80,12 @@ export default function MenuModal({
           </FormGroup>
           <FormGroup>
             <ControlLabel>
-              Establisment <code>*</code>
+            Establishment <code>*</code>
             </ControlLabel>
             <InputPicker
               data={etsData}
               name='ets'
-              defaultValue={'Select establisment'}
+              defaultValue={'Select Establishment'}
               onChange={handleSelectChange('ets')}
               block
             />
