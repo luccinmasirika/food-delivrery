@@ -329,7 +329,12 @@ const Setting = () => {
                           >
                             <span>
                               {_.nom}{' '}
-                              <em title='Exchange rate' className='badge badge-indigo'>{_.taux} </em>
+                              <em
+                                title='Exchange rate'
+                                className='badge badge-indigo'
+                              >
+                                {_.taux}{' '}
+                              </em>
                             </span>
                             <span title='Edit currency'>
                               <IconButton icon={<Icon icon='edit2' />} />
