@@ -5,7 +5,7 @@ import { getUserStats } from '../api/shop';
 
 const CardLivreur = ({ data, onDisable, onEdit, onLoad }) => {
   const { user, token } = isAuthenticated();
-  const { firstName, lastName, role, avatar, disable } = data;
+  const { firstName, lastName, role, avatar, disable, stat } = data;
 
   return (
     <div className='col-md-4 col-xs-12'>
@@ -42,15 +42,17 @@ const CardLivreur = ({ data, onDisable, onEdit, onLoad }) => {
           <hr />
           <ul className='list-unstyled margin-b-0 text-center row'>
             <li className='col-4'>
-              <span className='font-600 text-indigo'>0</span>
+              <span className='font-600 text-indigo'>{stat && stat.un}</span>
               <p className='text-indigo text-sm margin-b-0'>Orders closed</p>
             </li>
             <li className='col-4'>
-              <span className='font-600 text-waring'>0</span>
+              <span className='font-600 text-waring'>{stat && stat.deux}</span>
               <p className='text-waring text-sm margin-b-0'>Pending orders</p>
             </li>
             <li className='col-4'>
-              <span className='font-600 text-success'>0</span>
+              <span className='font-600 text-success'>
+                {stat && stat.trois}
+              </span>
               <p className='text-success text-sm margin-b-0'>
                 Orders delivered
               </p>

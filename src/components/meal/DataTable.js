@@ -153,8 +153,8 @@ export default function PaginationTable({
                 <>
                   <button
                     onClick={() => handleAction(data)}
-                    class='btn btn-success btn-border btn-rounded btn-sm m-1'
-                    title='Edit meal' 
+                    class='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
+                    title='Edit meal'
                   >
                     <i class='fa fa-edit'></i>
                   </button>
@@ -165,7 +165,7 @@ export default function PaginationTable({
                     }
                     class={`btn ${
                       !data.disable ? 'btn-danger' : 'btn-info'
-                    } btn-border btn-rounded btn-sm m-1`}
+                    } btn-sm btn-border box-shadow btn-circle m-1`}
                   >
                     <i
                       class={`fa ${!data.disable ? 'fa-times' : 'fa-check'}`}
@@ -176,7 +176,7 @@ export default function PaginationTable({
                     title={data.promo ? 'Promote' : 'Unpromote'}
                     class={`btn ${
                       !data.promo ? 'bg-light' : 'btn-warning'
-                    } btn-border btn-rounded btn-sm m-1`}
+                    } btn-sm btn-border box-shadow btn-circle m-1`}
                   >
                     <i class='fa fa-star'></i>
                   </button>

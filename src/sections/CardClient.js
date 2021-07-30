@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { API } from '../config';
 import { isAuthenticated } from '../api/auth';
-import { getUserStats } from '../api/shop';
 
 const CardClient = ({ data, onDisable, onEdit, onLoad }) => {
-  const { user, token } = isAuthenticated();
-  const { firstName, lastName, role, avatar, disable } = data;
+  const { user } = isAuthenticated();
+  const { firstName, lastName, avatar, disable, stat } = data;
 
   return (
     <div className='col-md-4 col-xs-12'>
@@ -42,15 +41,15 @@ const CardClient = ({ data, onDisable, onEdit, onLoad }) => {
           <hr />
           <ul className='list-unstyled margin-b-0 text-center row'>
             <li className='col-4'>
-              <span className='font-600 text-success'>0</span>
+              <span className='font-600 text-success'>{stat.un}</span>
               <p className='text-success text-sm margin-b-0'>Order paid</p>
             </li>
             <li className='col-4'>
-              <span className='font-600 '>0</span>
+              <span className='font-600 '>{stat.deux}</span>
               <p className='text-muted text-sm margin-b-0'>Order denied</p>
             </li>
             <li className='col-4'>
-              <span className='font-600 text-danger'>0</span>
+              <span className='font-600 text-danger'>{stat.trois}</span>
               <p className='text-danger text-sm margin-b-0'>Order canceled</p>
             </li>
           </ul>

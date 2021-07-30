@@ -154,7 +154,7 @@ export default function PaginationTable({
                   <button
                     onClick={() => handleAction(data)}
                     title='Edit'
-                    class='btn btn-success btn-border btn-rounded btn-sm m-1'
+                    class='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
                   >
                     <i class='fa fa-edit'></i>
                   </button>
@@ -167,7 +167,7 @@ export default function PaginationTable({
                     }
                     class={`btn ${
                       !data.disable ? 'btn-danger' : 'btn-info'
-                    } btn-border btn-rounded btn-sm m-1`}
+                    } btn-sm btn-border box-shadow btn-circle m-1`}
                   >
                     <i
                       class={`fa ${!data.disable ? 'fa-times' : 'fa-check'}`}

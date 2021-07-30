@@ -173,7 +173,7 @@ export default function Meal() {
       ...type,
       link: '',
     });
-    showModal(false);
+    setShowModal(false);
     setRunEffect(!runEffect);
   };
 

@@ -446,34 +446,6 @@ const Users = () => {
                           );
                         }
                       })}
-                    {allClients &&
-                      allClients.map((_, i) => {
-                        if (_._id !== user._id) {
-                          return (
-                            <CardClient
-                              key={_._id}
-                              data={_}
-                              onLoad={loader}
-                              onEdit={() => onEdit(_._id)}
-                              onDisable={() => onDisable(_._id)}
-                            />
-                          );
-                        }
-                      })}
-                    {allClients &&
-                      allClients.map((_, i) => {
-                        if (_._id !== user._id) {
-                          return (
-                            <CardClient
-                              key={_._id}
-                              data={_}
-                              onLoad={loader}
-                              onEdit={() => onEdit(_._id)}
-                              onDisable={() => onDisable(_._id)}
-                            />
-                          );
-                        }
-                      })}
                   </div>
                   <div className=''>
                     <Pagination
