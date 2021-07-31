@@ -4,6 +4,9 @@ import TablePagination from 'rsuite/lib/Table/TablePagination';
 import dayjs from 'dayjs';
 import { Button, Icon, Modal, Panel, Table } from 'rsuite';
 import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
+import Avatar from '@material-ui/core/Avatar';
+import { isMobile } from 'react-device-detect';
+import AvatarGroup from '@material-ui/lab/AvatarGroup';
 
 export default function PaginationTable({
   data,
@@ -15,7 +18,6 @@ export default function PaginationTable({
   handleChangeLength,
   displayLength,
   handleAction,
-  onSubmitAnableDisable,
   onPromo,
   onDisableUnable,
 }) {
@@ -78,7 +80,7 @@ export default function PaginationTable({
         <PlaceholderParagraph />
       </Panel>
       <Table height={370} data={data} rowHeight={60} loading={loading}>
-        <Table.Column width={150} align='center'>
+        <Table.Column width={150} align='center' fixed={!isMobile && 'left'}>
           <Table.HeaderCell>Image</Table.HeaderCell>
           <Table.Cell className='cell-image'>
             {(data) => (
@@ -95,7 +97,7 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200} resizable={true}>
+        <Table.Column width={150} resizable={true} fixed={!isMobile && 'left'}>
           <Table.HeaderCell>Nom</Table.HeaderCell>
           <Table.Cell dataKey='nom' />
         </Table.Column>
@@ -105,17 +107,30 @@ export default function PaginationTable({
           <Table.Cell>{(data) => data.ets.nom}</Table.Cell>
         </Table.Column>
 
-        <Table.Column width={150} flexGrow={1}>
+        <Table.Column width={170}>
+          <Table.HeaderCell>Ohters images</Table.HeaderCell>
+          <Table.Cell>
+            {(data) => (
+              <AvatarGroup max={3}>
+                {data.autresImages.map((x) => (
+                  <Avatar alt='Remy Sharp' src={`${API}/${x}`} />
+                ))}
+              </AvatarGroup>
+            )}
+          </Table.Cell>
+        </Table.Column>
+
+        <Table.Column width={160} flexGrow={1}>
           <Table.HeaderCell>Prix</Table.HeaderCell>
           <Table.Cell>{(data) => <span>$ {data.prix}</span>}</Table.Cell>
         </Table.Column>
 
-        <Table.Column width={150} flexGrow={1}>
+        <Table.Column width={160} flexGrow={1}>
           <Table.HeaderCell>Delais</Table.HeaderCell>
           <Table.Cell>{(data) => <span>{data.delais} Min</span>}</Table.Cell>
         </Table.Column>
 
-        <Table.Column width={100} flexGrow={1}>
+        <Table.Column width={120} flexGrow={1}>
           <Table.HeaderCell>Status</Table.HeaderCell>
           <Table.Cell>
             {(data) => (
@@ -132,12 +147,12 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={300} flexGrow={1}>
+        <Table.Column width={200}>
           <Table.HeaderCell>Description</Table.HeaderCell>
           <Table.Cell dataKey='description' />
         </Table.Column>
 
-        <Table.Column width={300} flexGrow={1}>
+        <Table.Column width={200}>
           <Table.HeaderCell>Date</Table.HeaderCell>
           <Table.Cell>
             {(data) => dayjs(data.updatedAt).format('DD MMMM YYYY - HH:mm')}
@@ -159,7 +174,7 @@ export default function PaginationTable({
                     <i class='fa fa-edit'></i>
                   </button>
                   <button
-                  title={data.disable ? 'Activate' : 'Disable'}
+                    title={data.disable ? 'Activate' : 'Disable'}
                     onClick={() =>
                       data.disable ? onDisableUnable(data) : onDisable(data)
                     }

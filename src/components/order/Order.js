@@ -75,6 +75,7 @@ export default function Type() {
   };
 
   const handleEdit = (data) => {
+    setState({ ...state, loading: false, error: '' });
     const { nom, description } = data;
     setType({
       ...type,

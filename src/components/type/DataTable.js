@@ -45,7 +45,7 @@ export default function PaginationTable({
                   style={{ cursor: 'help' }}
                   className='badge badge-primary badge-pill'
                 >
-                  2
+                  {data.ets.length}
                 </span>
               </>
             )}
@@ -71,11 +71,11 @@ export default function PaginationTable({
             {(data) => {
               return (
                 <button
-                  title='Edit'
                   onClick={() => handleAction(data)}
-                  class='btn btn-success btn-border btn-rounded btn-sm'
+                  title='Edit'
+                  class='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
                 >
-                  <i class='fa fa-edit'></i> Edit
+                  <i class='fa fa-edit'></i>
                 </button>
               );
             }}

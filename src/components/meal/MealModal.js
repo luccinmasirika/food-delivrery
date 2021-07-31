@@ -30,7 +30,7 @@ export default function MealModal({
   etsData,
   menuData,
   current,
-  onFinish
+  onFinish,
 }) {
   return (
     <Modal size={'xs'} show={showModal} onHide={closeModal}>
@@ -84,7 +84,7 @@ export default function MealModal({
 
               <FormGroup>
                 <ControlLabel>
-                Establishment <code>*</code>
+                  Establishment <code>*</code>
                 </ControlLabel>
                 <InputPicker
                   data={etsData}
@@ -117,10 +117,10 @@ export default function MealModal({
                     </ControlLabel>
                     <InputNumber
                       postfix='$'
-                      defaultValue={0.1}
+                      placeholder={0.1}
                       min={0.1}
-                      onChange={handleSelectChange('prix')}
                       step={0.1}
+                      onChange={handleSelectChange('prix')}
                       block
                     />
                   </FormGroup>
@@ -132,7 +132,7 @@ export default function MealModal({
                     <InputNumber
                       postfix='Min'
                       onChange={handleSelectChange('delais')}
-                      defaultValue={1}
+                      placeholder={1}
                       min={0}
                       block
                     />
@@ -170,7 +170,7 @@ export default function MealModal({
           onClick={current < 1 ? onSubmit : onFinish}
           appearance='primary'
         >
-          {current < 1 ? 'Submit' : 'Finish'}
+          {current < 1 ? 'Next' : 'Finish'}
         </Button>
         <Button onClick={closeModal} appearance='subtle'>
           Cancel

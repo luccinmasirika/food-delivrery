@@ -15,7 +15,6 @@ import {
   Panel,
   Table,
 } from 'rsuite';
-import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
 
 export default function PaginationTable({
   data,
@@ -27,6 +26,7 @@ export default function PaginationTable({
   handleChangeLength,
   displayLength,
   handleAction,
+  onDisableUnable,
   typeData,
 }) {
   const [show, setShow] = useState(false);
@@ -39,10 +39,6 @@ export default function PaginationTable({
 
   const close = () => {
     setShow(false);
-  };
-
-  const onSubmitAnableDisable = (data) => {
-    console.log('data2', data);
   };
 
   const disableModal = (data) => {
@@ -68,7 +64,13 @@ export default function PaginationTable({
             want to proceed?
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={() => onSubmitAnableDisable(state)} color='red'>
+            <Button
+              onClick={() => {
+                onDisableUnable(data);
+                setShow(false);
+              }}
+              color='red'
+            >
               Disable
             </Button>
             <Button onClick={close} appearance='subtle'>
@@ -130,7 +132,7 @@ export default function PaginationTable({
                   style={{ cursor: 'help' }}
                   className='badge badge-primary badge-pill'
                 >
-                  200
+                  {data.menu.length}
                 </span>
               </>
             )}
@@ -213,9 +215,7 @@ export default function PaginationTable({
                   <button
                     title={data.disable ? 'Activate' : 'Disable'}
                     onClick={() =>
-                      data.disable
-                        ? onSubmitAnableDisable(data)
-                        : onDisable(data)
+                      data.disable ? onDisableUnable(data) : onDisable(data)
                     }
                     class={`btn ${
                       !data.disable ? 'btn-danger' : 'btn-info'

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import PaginationTable from './DataTable';
 import MenuModal from './MenuModal';
 import { isAuthenticated } from '../../api/auth';
-import { onCreateData, onGetData } from '../../api';
+import { onCreateData, onGetData, onUpdateData } from '../../api';
 import CategoryModal from './CategoryModal';
 import {
   Alert,
@@ -29,6 +29,7 @@ export default function Menu() {
     image: '',
     ets: '',
     category: '',
+    _id: '',
     formData: new FormData(),
     update: false,
   });
@@ -50,7 +51,7 @@ export default function Menu() {
 
   const { loading } = state;
   const { total, page, pages, limit } = paginate;
-  const { title, image, update, formData } = type;
+  const { title, image, update, formData, category, ets, _id } = type;
 
   function openModal(title) {
     setType({ ...type, title });
@@ -100,12 +101,16 @@ export default function Menu() {
   };
 
   const handleEdit = (data) => {
-    const { nom, description } = data;
+    setState({ ...state, loading: false, error: '' });
+    const { nom, description, _id, category, ets } = data;
     setType({
       ...type,
       title: `Update ${nom}'s informations`,
       nom,
       description,
+      category,
+      ets,
+      _id,
       update: true,
     });
     setShowModal(true);
@@ -139,8 +144,26 @@ export default function Menu() {
     setRunEffect(!runEffect);
   };
 
-  const onSubmitUpdate = async () => {
-    alert('Comming Soon !');
+  const onSubmitUpdate = async (data) => {
+    setState({ ...state, loading: true });
+    const res = await onUpdateData(`/update/menu/${user._id}?_id=${_id}`, data);
+    if (res && res.error) {
+      return setState({ ...state, error: res.error, loading: false });
+    }
+    Alert.success(res.message, 3000);
+    setState({ ...state, loading: false, success: res.message });
+    setType({
+      ...type,
+      nom: '',
+      titre: '',
+      description: '',
+      category: '',
+      ets: '',
+      image: '',
+      formData: new FormData(),
+    });
+    setShowModal(false);
+    setRunEffect(!runEffect);
   };
 
   const onSubmitCatCreate = async (data) => {
@@ -155,10 +178,30 @@ export default function Menu() {
     setState({ ...state, loading: false, success: res.message });
     setShowCatModal(false);
     setRunEffect(!runEffect);
+    setType({ ...state, nom: '', formData: new FormData() });
   };
 
   const onSubmitCatUpdate = async () => {
     alert('Comming Soon !');
+  };
+
+  const onDisableUnable = async (id) => {
+    setState({ ...state, loading: true });
+    const res = await onGetData(
+      `/disableUnable/menu/${user._id}?_id=${id._id}`
+    );
+
+    if (res && res.error) {
+      Alert.error(res.error, 3000);
+      return setState({
+        ...state,
+        loading: false,
+        error: res.error,
+      });
+    }
+
+    setRunEffect(!runEffect);
+    setState({ ...state, loading: false });
   };
 
   useEffect(() => {
@@ -167,9 +210,7 @@ export default function Menu() {
       const res = await onGetData(
         `/read/all/menu/${user._id}?limit=${limit}&page=${page}`
       );
-      if (res && res.error) {
-        return setState({ ...state, loading: false, error: res.error });
-      }
+
       setAllType(res && res.data);
       setPaginate({
         ...paginate,
@@ -185,10 +226,6 @@ export default function Menu() {
       setState({ ...state, loading: true });
       const res = await onGetData(`/read/all/category/${user._id}`);
       const res2 = await onGetData(`/read/all/ets/${user._id}?disable=false`);
-
-      if (res && res.error) {
-        return setState({ ...state, loading: false, error: res.error });
-      }
 
       setAllCat(res.data);
       setAllEts(res2.data);
@@ -217,12 +254,18 @@ export default function Menu() {
           showModal={showModal}
           state={state}
           closeModal={closeModal}
-          etsData={allEts.map((x) => {
-            return { label: x.nom, value: x._id };
-          })}
-          catData={allCat.map((x) => {
-            return { label: x.nom, value: x._id };
-          })}
+          etsData={
+            allEts &&
+            allEts.map((x) => {
+              return { label: x.nom, value: x._id };
+            })
+          }
+          catData={
+            allCat &&
+            allCat.map((x) => {
+              return { label: x.nom, value: x._id };
+            })
+          }
           btnStatus={image ? true : false}
           handleChange={handleChange}
           handleImageChange={handleImageChange}
@@ -254,6 +297,7 @@ export default function Menu() {
                 pages={pages}
                 displayLength={limit}
                 loading={loading}
+                onDisableUnable={onDisableUnable}
                 handleChangePage={handleChangePage}
                 handleChangeLength={handleChangeLength}
                 handleAction={handleEdit}

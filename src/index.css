@@ -81,13 +81,20 @@ button {
 
 .rs-steps-item-status-finish
   .rs-steps-item-icon-wrapper:not(.rs-steps-item-custom-icon)
-  .rs-steps-item-icon::before {
+  .rs-steps-item-icon::before,
+.rs-calendar-show-time-dropdown .rs-calendar-header-title-time {
   color: #ff8248 !important;
 }
 
 .rs-steps-item-status-finish
   .rs-steps-item-icon-wrapper:not(.rs-steps-item-custom-icon) {
   border-color: #ff8248 !important;
+}
+
+.rs-calendar-time-dropdown-cell-active.rs-calendar-time-dropdown-cell,
+.rs-calendar-time-dropdown-cell-active.rs-calendar-time-dropdown-cell:hover,
+.rs-picker-toolbar-right-btn-ok {
+  background: #ff8248 !important;
 }
 
 .rs-steps-item-tail,

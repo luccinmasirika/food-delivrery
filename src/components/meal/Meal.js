@@ -93,6 +93,7 @@ export default function Meal() {
   };
 
   const handleEdit = (data) => {
+    setState({ ...state, loading: false, error: '' });
     const { nom, description } = data;
     setType({
       ...type,

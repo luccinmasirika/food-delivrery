@@ -16,6 +16,7 @@ export default function PaginationTable({
   displayLength,
   handleAction,
   onSubmitAnableDisable,
+  onDisableUnable,
 }) {
   const [show, setShow] = useState(false);
   const [state, setState] = useState('');
@@ -52,7 +53,13 @@ export default function PaginationTable({
             proceed?
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={close} color='red'>
+            <Button
+              onClick={() => {
+                onDisableUnable(data);
+                setShow(false);
+              }}
+              color='red'
+            >
               Disable
             </Button>
             <Button onClick={close} appearance='subtle'>
@@ -98,7 +105,7 @@ export default function PaginationTable({
                   style={{ cursor: 'help' }}
                   className='badge badge-primary badge-pill'
                 >
-                  2
+                  {data.plat.length}
                 </span>
               </>
             )}
@@ -161,9 +168,7 @@ export default function PaginationTable({
                   <button
                     title={data.disable ? 'Activate' : 'Disable'}
                     onClick={() =>
-                      data.disable
-                        ? onSubmitAnableDisable(data)
-                        : onDisable(data)
+                      data.disable ? onDisableUnable(data) : onDisable(data)
                     }
                     class={`btn ${
                       !data.disable ? 'btn-danger' : 'btn-info'

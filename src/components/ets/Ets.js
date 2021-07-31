@@ -3,7 +3,7 @@ import Layout from '../Layout';
 import Header from '../navBar/Header';
 import EtsModal from './EtsModal';
 import { isAuthenticated } from '../../api/auth';
-import { onCreateData, onGetData } from '../../api';
+import { onCreateData, onGetData, onUpdateData } from '../../api';
 import PaginationTable from './DataTable';
 import Footer from '../footer/Footer';
 import { Alert } from 'rsuite';
@@ -18,6 +18,7 @@ export default function Ets() {
     description: '',
     image: '',
     type: '',
+    _id: '',
     ouverture: '',
     fermeture: '',
     long: '',
@@ -47,6 +48,7 @@ export default function Ets() {
     image,
     update,
     formData,
+    _id,
     type,
     ouverture,
     fermeture,
@@ -90,7 +92,7 @@ export default function Ets() {
       ...ets,
       image: value[0] && value[0].blobFile,
     });
-    formData.append('image', value[0] && value[0].blobFile);
+    formData.set('image', value[0] && value[0].blobFile);
   };
 
   const handleChangePage = (data) => {
@@ -103,15 +105,51 @@ export default function Ets() {
   };
 
   const handleEdit = (data) => {
-    const { nom, description } = data;
+    setState({ ...state, loading: false, error: '' });
+    const {
+      nom,
+      description,
+      _id,
+      type,
+      ouverture,
+      fermeture,
+      long,
+      lat,
+      localisation,
+      heure,
+    } = data;
     setEts({
       ...ets,
       title: `Update ${nom}`,
       nom,
       description,
+      type,
+      ouverture: heure.ouverture,
+      fermeture: heure.fermeture,
+      long: localisation.long,
+      lat: localisation.lat,
+      _id,
       update: true,
     });
+
     setShowModal(true);
+  };
+
+  const onDisableUnable = async (id) => {
+    setState({ ...state, loading: true });
+    const res = await onGetData(`/disableUnable/ets/${user._id}?_id=${id._id}`);
+
+    if (res && res.error) {
+      Alert.error(res.error, 3000);
+      return setState({
+        ...state,
+        loading: false,
+        error: res.error,
+      });
+    }
+
+    setRunEffect(!runEffect);
+    setState({ ...state, loading: false });
   };
 
   const onSubmitCreate = async (data) => {
@@ -138,8 +176,26 @@ export default function Ets() {
     setRunEffect(!runEffect);
   };
 
-  const onSubmitUpdate = async () => {
-    alert('Comming Soon !');
+  const onSubmitUpdate = async (data) => {
+    setState({ ...state, loading: true });
+    const res = await onUpdateData(`/update/ets/${user._id}?_id=${_id}`, data);
+
+    Alert.success(res.message, 3000);
+    setState({ ...state, loading: false, success: res.message });
+    setShowModal(false);
+    setEts({
+      nom: '',
+      title: '',
+      long: '',
+      lat: '',
+      ouverture: '',
+      fermeture: '',
+      description: '',
+      type: '',
+      image: '',
+      formData: new FormData(),
+    });
+    setRunEffect(!runEffect);
   };
 
   useEffect(() => {
@@ -215,6 +271,7 @@ export default function Ets() {
             displayLength={limit}
             loading={loading}
             handleChangePage={handleChangePage}
+            onDisableUnable={onDisableUnable}
             handleChangeLength={handleChangeLength}
             handleAction={handleEdit}
           />

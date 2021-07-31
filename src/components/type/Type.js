@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import PaginationTable from './DataTable';
 import TypeModal from './TypeModal';
 import { isAuthenticated } from '../../api/auth';
-import { onCreateData, onGetData } from '../../api';
+import { onCreateData, onGetData, onUpdateData } from '../../api';
 import { Alert } from 'rsuite';
 
 export default function Type() {
@@ -15,6 +15,7 @@ export default function Type() {
   const [type, setType] = useState({
     title: '',
     nom: '',
+    _id: '',
     description: '',
     image: '',
     formData: new FormData(),
@@ -36,7 +37,7 @@ export default function Type() {
 
   const { loading } = state;
   const { total, page, pages, limit } = paginate;
-  const { title, image, update, formData } = type;
+  const { title, image, update, formData, _id } = type;
 
   function openModal(title) {
     setType({ ...type, title });
@@ -62,7 +63,7 @@ export default function Type() {
       ...type,
       image: value[0] && value[0].blobFile,
     });
-    type.formData.append('image', value[0] && value[0].blobFile);
+    type.formData.set('image', value[0] && value[0].blobFile);
   };
 
   const handleChangePage = (data) => {
@@ -75,12 +76,14 @@ export default function Type() {
   };
 
   const handleEdit = (data) => {
-    const { nom, description } = data;
+    setState({ ...state, loading: false, error: '' });
+    const { nom, description, _id } = data;
     setType({
       ...type,
       title: `Update ${nom}'s informations`,
       nom,
       description,
+      _id,
       update: true,
     });
     setShowModal(true);
@@ -95,11 +98,39 @@ export default function Type() {
     Alert.success(res.message, 3000);
     setState({ ...state, loading: false, success: res.message });
     setShowModal(false);
-    setRunEffect(true);
+
+    setType({
+      ...allType,
+      title: '',
+      nom: '',
+      description: '',
+      image: '',
+      formData: new FormData(),
+    });
+
+    setRunEffect(!runEffect);
   };
 
-  const onSubmitUpdate = async () => {
-    alert('Comming Soon !');
+  const onSubmitUpdate = async (data) => {
+    setState({ ...state, loading: true });
+    const res = await onUpdateData(`/update/type/${user._id}?_id=${_id}`, data);
+    if (res && res.error) {
+      return setState({ ...state, error: res.error, loading: false });
+    }
+    Alert.success(res.message, 3000);
+    setState({ ...state, loading: false, success: res.message });
+    setShowModal(false);
+
+    setType({
+      ...allType,
+      title: '',
+      nom: '',
+      description: '',
+      image: '',
+      formData: new FormData(),
+    });
+
+    setRunEffect(!runEffect);
   };
 
   useEffect(() => {
@@ -108,9 +139,6 @@ export default function Type() {
       const res = await onGetData(
         `/read/all/type/${user._id}?limit=${limit}&page=${page}`
       );
-      if (res && res.error) {
-        return setState({ ...state, loading: false, error: res.error });
-      }
       setAllType(res.data);
       setPaginate({
         ...paginate,
@@ -127,7 +155,8 @@ export default function Type() {
         parent='Home'
         content='Type'
         title='Type management'
-        handelClick={() => openModal('Create Type of establishment')}
+        text='Create new type'
+        handelClick={() => openModal('Create establishment type')}
         create={true}
       />
 

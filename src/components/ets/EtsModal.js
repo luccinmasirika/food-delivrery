@@ -30,17 +30,13 @@ export default function EtsModal({
 }) {
   return (
     <Modal size={'xs'} show={showModal} onHide={closeModal}>
+      {state.loading && (
+        <Loader backdrop content='loading...' style={{ zIndex: 10 }} vertical />
+      )}
       <Modal.Header>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {state.loading && (
-          <Message
-            description={<Loader content='Loading...' />}
-            style={{ marginBottom: '15px' }}
-          />
-        )}
-
         {state.error && (
           <Message
             type='error'

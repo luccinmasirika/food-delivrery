@@ -102,6 +102,7 @@ const Users = () => {
       password: '',
       email: '',
     });
+    setRunEffect(!runEffect);
   };
 
   const onSubmitUpdate = (id) => async (event) => {
@@ -122,6 +123,7 @@ const Users = () => {
       updateLastName: data.lastName,
       updateRole: data.role,
     });
+    setRunEffect(!runEffect);
   };
 
   const onCancel = () => {
@@ -310,6 +312,7 @@ const Users = () => {
       return setState({ error: data.error, success: false, loader: false });
     }
     setState({ error: false, success: false, loader: false });
+    setRunEffect(!runEffect);
   };
 
   useEffect(() => {
@@ -371,12 +374,7 @@ const Users = () => {
 
   return (
     <Layout>
-      <Header
-        parent='Accueil'
-        content='Utilisateurs'
-        title='Liste de utitlisateurs'
-        create={true}
-      />
+      <Header parent='Home' content='Users' title='Users management' create={true} />
       {createModal()}
       {updateModal()}
       <section className='main-content'>
