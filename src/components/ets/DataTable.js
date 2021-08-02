@@ -4,15 +4,8 @@ import TablePagination from 'rsuite/lib/Table/TablePagination';
 import dayjs from 'dayjs';
 import {
   Button,
-  Divider,
-  Form,
-  FormControl,
-  FormGroup,
   Icon,
-  Input,
-  InputPicker,
   Modal,
-  Panel,
   Table,
 } from 'rsuite';
 
@@ -20,14 +13,12 @@ export default function PaginationTable({
   data,
   total,
   page,
-  pages,
   loading,
   handleChangePage,
   handleChangeLength,
   displayLength,
   handleAction,
   onDisableUnable,
-  typeData,
 }) {
   const [show, setShow] = useState(false);
   const [state, setState] = useState('');
@@ -85,24 +76,6 @@ export default function PaginationTable({
   return (
     <div>
       {show && disableModal(state)}
-      <Panel header='Filters' collapsible bordered>
-        <div className='row'>
-          <div className='col-md-6'>
-            <InputPicker
-              data={typeData}
-              placeholder='Filter by type'
-              onChange={() => console.log('Filters')}
-              block
-            />
-          </div>
-          <div className='col-md-6'>
-            <Input
-              placeholder='Search'
-              onChange={() => console.log('Filters')}
-            />
-          </div>
-        </div>
-      </Panel>
       <Table height={370} data={data} rowHeight={60} loading={loading}>
         <Table.Column width={150} align='center'>
           <Table.HeaderCell>Image</Table.HeaderCell>

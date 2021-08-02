@@ -6,7 +6,9 @@ import { isAuthenticated } from '../../api/auth';
 import { onCreateData, onGetData, onUpdateData } from '../../api';
 import PaginationTable from './DataTable';
 import Footer from '../footer/Footer';
-import { Alert } from 'rsuite';
+import Filters from './Filters';
+import { Alert, Notification } from 'rsuite';
+import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
 
 export default function Ets() {
   const [showModal, setShowModal] = useState(false);
@@ -40,6 +42,11 @@ export default function Ets() {
     loading: false,
   });
   const [runEffect, setRunEffect] = useState(false);
+  const [filters, setFilters] = useState({
+    status: '',
+    type: '',
+    name: '',
+  });
 
   const { loading } = state;
   const { total, page, pages, limit } = paginate;
@@ -64,9 +71,26 @@ export default function Ets() {
   function closeModal() {
     setState({ ...state, loading: false, error: '' });
     setShowModal(false);
-    setEts({ ...ets, title: '', nom: '', description: '', image: '' });
+    setEts({
+      nom: '',
+      title: '',
+      long: '',
+      lat: '',
+      ouverture: '',
+      fermeture: '',
+      description: '',
+      type: '',
+      image: '',
+      formData: new FormData(),
+    });
   }
 
+  const handelFilterChange = (props) => (value) => {
+    setFilters({
+      ...filters,
+      [props]: value,
+    });
+  };
   const handleChange = (value, name) => {
     setState({ ...state, loading: false, error: '' });
     const { nom, description, long, lat } = value;
@@ -111,6 +135,7 @@ export default function Ets() {
       description,
       _id,
       type,
+      image,
       ouverture,
       fermeture,
       long,
@@ -124,6 +149,7 @@ export default function Ets() {
       nom,
       description,
       type,
+      image,
       ouverture: heure.ouverture,
       fermeture: heure.fermeture,
       long: localisation.long,
@@ -180,7 +206,15 @@ export default function Ets() {
     setState({ ...state, loading: true });
     const res = await onUpdateData(`/update/ets/${user._id}?_id=${_id}`, data);
 
-    Alert.success(res.message, 3000);
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Le lorem ipsum est, en imprimerie, une suite de mots sans une suite de mots sans ',
+    });
+
+    // Alert.success(res.message, 3000);
+
     setState({ ...state, loading: false, success: res.message });
     setShowModal(false);
     setEts({
@@ -202,7 +236,9 @@ export default function Ets() {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/ets/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/ets/${user._id}?limit=${limit}&page=${page}&nom=${
+          filters.name
+        }&disable=${filters.status || ''}&type=${filters.type || ''}`
       );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
@@ -215,7 +251,7 @@ export default function Ets() {
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit, runEffect, page]);
+  }, [limit, runEffect, page, filters.name, filters.type, filters.status]);
 
   useEffect(() => {
     (async () => {
@@ -259,7 +295,9 @@ export default function Ets() {
             update ? onSubmitUpdate(formData) : onSubmitCreate(formData)
           }
         />
+
         <div className='card'>
+          <Filters onChange={handelFilterChange} data={allType} />
           <PaginationTable
             data={allEts}
             total={total}

@@ -6,20 +6,22 @@ import {
   FormControl,
   FormGroup,
   Icon,
+  InputNumber,
+  InputPicker,
   Loader,
   Message,
   Modal,
+  SelectPicker,
   Uploader,
 } from 'rsuite';
 
-export default function CategoryModal({
-  title,
+export default function ConfigModal({
   data,
   state,
   showModal,
   closeModal,
-  handleChange,
-  handleImageChange,
+  handelChange,
+  deviseData,
   onSubmit,
 }) {
   return (
@@ -28,7 +30,7 @@ export default function CategoryModal({
         <Loader backdrop content='loading...' style={{ zIndex: 10 }} vertical />
       )}
       <Modal.Header>
-        <Modal.Title>{title}</Modal.Title>
+        <Modal.Title>Configuration</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {state.error && (
@@ -39,12 +41,34 @@ export default function CategoryModal({
           />
         )}
 
-        <Form fluid onChange={handleChange}>
+        <Form fluid>
           <FormGroup>
             <ControlLabel>
-              Name <code>*</code>
+              Delivrery radius <code>*</code>
             </ControlLabel>
-            <FormControl name='nom' value={data.nom} />
+            <InputNumber
+              postfix='Km'
+              placeholder={1}
+              defaultValue={data.rayonLimite}
+              min={1}
+              step={1}
+              onChange={handelChange('rayonLimite')}
+              block
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>
+              Fee per Km <code>*</code>
+            </ControlLabel>
+            <InputNumber
+              postfix='$'
+              placeholder={0.1}
+              min={0.1}
+              step={0.1}
+              defaultValue={data.fraisParKm}
+              onChange={handelChange('fraisParKm')}
+              block
+            />
           </FormGroup>
         </Form>
       </Modal.Body>

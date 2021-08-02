@@ -6,19 +6,15 @@ import Layout from '../Layout';
 import Header from '../navBar/Header';
 import { isAuthenticated, updateUserData } from '../../api/auth';
 import { API } from '../../config';
-import { onGetData } from '../../api';
-import {
-  getUser,
-  updateUser,
-  getUserStats,
-  getLogo,
-  updateLogo,
-} from '../../api/shop';
+import ConfigModal from './ConfigModal';
+import { onGetData, onUpdateData } from '../../api';
+import { getUser, updateUser } from '../../api/shop';
 import {
   Alert,
   Icon,
   IconButton,
   Loader,
+  Notification,
   Panel,
   PanelGroup,
   Uploader,
@@ -52,15 +48,22 @@ const Setting = () => {
     password: '',
   });
   const [state, setState] = useState({
-    loader: false,
-    success: false,
     error: '',
+    success: '',
+    loading: false,
   });
   const [allDevise, setAllDevise] = useState();
+  const [config, setConfig] = useState({
+    fraisParKm: 0,
+    rayonLimite: 0,
+    devise: '',
+  });
+  const [showModal, setShowModal] = useState(false);
 
-  const [run, setRun] = useState('');
+  const [runEffect, setRunEffect] = useState('');
 
   const { loader, success, error } = state;
+  const { fraisParKm, rayonLimite, devise } = config;
 
   const init = async () => {
     const { firstName, lastName, role, avatar, email } = user;
@@ -71,13 +74,32 @@ const Setting = () => {
     const res = await onGetData(`/read/all/devise/${user._id}`);
     setAllDevise(res);
   };
-
-  useEffect(() => {
-    init();
-    getDevise();
-  }, [run]);
+  const getConfig = async () => {
+    const res = await onGetData(`/read/config/${user._id}`);
+    setConfig({
+      fraisParKm: res.fraisParKm,
+      rayonLimite: res.rayonLimite,
+      devise: res.devise,
+    });
+  };
 
   const { firstName, lastName, email, role, avatar, password } = userData;
+
+  function openModal() {
+    setShowModal(true);
+  }
+
+  function closeModal() {
+    setState({ ...state, loading: false, error: '' });
+    setShowModal(false);
+  }
+
+  const handelConfigChande = (props) => (value) => {
+    setConfig({
+      ...config,
+      [props]: value,
+    });
+  };
 
   const handelChangeUpdate = (props) => (event) => {
     setState({ ...state, error: '' });
@@ -91,14 +113,33 @@ const Setting = () => {
     if (data.error) {
       return setState({ ...state, error: data.error, loader: false });
     }
-    // updateUserData();
     init();
     setState({ ...state, loader: false, success: true });
   };
 
-  const onClose = () => {
-    setState({ ...state, error: '', success: false });
+  const onSubmitUpdateConfig = async (data) => {
+    setState({ ...state, error: '', loading: true });
+    const res = await onUpdateData(`/update/config/${user._id}`, data);
+    if (res && res.error) {
+      setState({ ...state, loading: false, error: res.error });
+    }
+
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Le lorem ipsum est, en imprimerie, une suite de mots sans une suite de mots sans ',
+    });
+    setState({ ...state, loading: false, success: res.message });
+    setRunEffect(!runEffect);
+    setShowModal(false);
   };
+
+  useEffect(() => {
+    init();
+    getDevise();
+    getConfig();
+  }, [runEffect]);
 
   return (
     <Layout>
@@ -110,29 +151,23 @@ const Setting = () => {
       />
 
       <section className='main-content'>
-        {(error || success) && (
-          <div
-            class={`alert bg-${
-              error ? 'danger' : 'success'
-            } alert-dismissible fade show`}
-            role='alert'
-          >
-            <strong>{error ? 'Erreur' : 'Succès'}!</strong>{' '}
-            {error ? error : 'Profile updated'}
-            <button
-              type='button'
-              class='close'
-              onClick={() => onClose()}
-              data-dismiss='alert'
-              aria-label='Close'
-            >
-              <span aria-hidden='true'>&times;</span>
-            </button>
-          </div>
-        )}
+        <ConfigModal
+          data={config}
+          showModal={showModal}
+          state={state}
+          closeModal={closeModal}
+          deviseData={
+            allDevise &&
+            allDevise.map((x) => {
+              return { label: x.nom, value: x._id };
+            })
+          }
+          handelChange={handelConfigChande}
+          onSubmit={() => onSubmitUpdateConfig({ fraisParKm, rayonLimite })}
+        />
 
         <PanelGroup accordion bordered>
-          <Panel header='Account settings' defaultExpanded>
+          <Panel header='Account settings'>
             <div className='card'>
               <div className='row'>
                 <div className='col-md-4'>
@@ -219,7 +254,7 @@ const Setting = () => {
               </div>
             </div>
           </Panel>
-          <Panel header='Application settings'>
+          <Panel header='Application settings' defaultExpanded>
             <div className='row'>
               <div className='col-md-3'>
                 <div className='card'>
@@ -364,11 +399,12 @@ const Setting = () => {
                         Main Currency{' '}
                         <div>
                           <span className='mr-2'>
-                            <em className='text-indigo'>USD </em>
-                            <em className='badge badge-indigo'>1 </em>
-                          </span>
-                          <span title='Edit main currency'>
-                            <IconButton icon={<Icon icon='edit2' />} />
+                            <em className='text-indigo'>
+                              {devise && devise.nom}{' '}
+                            </em>
+                            <em className='badge badge-indigo'>
+                              {devise && devise.taux}{' '}
+                            </em>
                           </span>
                         </div>
                       </li>
@@ -379,11 +415,20 @@ const Setting = () => {
                         Delivery radius{' '}
                         <div>
                           <span className='mr-2'>
-                            <em className='text-indigo'>5 </em>
+                            <em className='text-indigo'>{rayonLimite} </em>
                             <em className='badge badge-indigo'>Km </em>
                           </span>
-                          <span title='Edit delivery radius'>
-                            <IconButton icon={<Icon icon='edit2' />} />
+                        </div>
+                      </li>
+                      <li
+                        key={3}
+                        className='list-group-item d-flex justify-content-between align-items-center'
+                      >
+                        Fee per Km{' '}
+                        <div>
+                          <span className='mr-2'>
+                            <em className='text-indigo'>{fraisParKm}$ </em>
+                            <em className='badge badge-indigo'>Km </em>
                           </span>
                         </div>
                       </li>
@@ -391,6 +436,12 @@ const Setting = () => {
                   </div>
                   <div className='card-footer '>
                     <h6 className='float-left'>Global config</h6>
+                    <span title='Add new currency' className='float-right'>
+                      <IconButton
+                        onClick={openModal}
+                        icon={<Icon icon='edit2' />}
+                      />
+                    </span>
                   </div>
                 </div>
               </div>

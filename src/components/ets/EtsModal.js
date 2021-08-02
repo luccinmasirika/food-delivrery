@@ -13,6 +13,9 @@ import {
   Modal,
   Uploader,
 } from 'rsuite';
+import dayjs from 'dayjs';
+
+import { API } from '../../config';
 
 export default function EtsModal({
   title,
@@ -70,7 +73,7 @@ export default function EtsModal({
             </ControlLabel>
             <InputPicker
               data={typeData}
-              defaultValue={'Select type'}
+              placeholder={data.type.nom ? data.type.nom : 'Select type'}
               onChange={handleSelectChange}
               block
             />
@@ -83,8 +86,13 @@ export default function EtsModal({
                   Open <code>*</code>
                 </ControlLabel>
                 <DatePicker
-                  placeholder='Select Opening Hour'
+                  placeholder={
+                    data.ouverture
+                      ? dayjs(data.ouverture).format('HH:mm')
+                      : 'Select Opening Hour'
+                  }
                   format='HH:mm'
+                  placement='autoVerticalStart'
                   onChange={handleSelectDateChange('ouverture')}
                   ranges={[]}
                 />
@@ -94,8 +102,13 @@ export default function EtsModal({
                   Close <code>*</code>
                 </ControlLabel>
                 <DatePicker
-                  placeholder='Select Closure Hour'
+                  placeholder={
+                    data.fermeture
+                      ? dayjs(data.fermeture).format('HH:mm')
+                      : 'Select Closure Hour'
+                  }
                   format='HH:mm'
+                  placement='autoVerticalStart'
                   onChange={handleSelectDateChange('fermeture')}
                   ranges={[]}
                 />
@@ -127,6 +140,9 @@ export default function EtsModal({
                 listType='picture'
                 disabled={btnStatus}
                 autoUpload={false}
+                defaultFileList={
+                  btnStatus ? [{ url: `${API}/${data.image}` }] : []
+                }
                 onChange={handleImageChange}
               >
                 <button>

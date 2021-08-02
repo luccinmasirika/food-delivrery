@@ -117,12 +117,7 @@ export default function PaginationTable({
           <Table.Cell>{(data) => data.ets.nom}</Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200}>
-          <Table.HeaderCell>Category</Table.HeaderCell>
-          <Table.Cell>{(data) => data.category.nom}</Table.Cell>
-        </Table.Column>
-
-        <Table.Column width={100} flexGrow={1}>
+        <Table.Column width={100}>
           <Table.HeaderCell>Status</Table.HeaderCell>
           <Table.Cell>
             {(data) => (

@@ -11,6 +11,7 @@ import {
   Modal,
   Uploader,
 } from 'rsuite';
+import { API } from '../../config';
 
 export default function TypeModal({
   title,
@@ -66,6 +67,7 @@ export default function TypeModal({
           listType='picture'
           disabled={btnStatus}
           autoUpload={false}
+          defaultFileList={btnStatus ? [{ url: `${API}/${data.image}` }] : []}
           onChange={handleImageChange}
         >
           <button>

@@ -6,7 +6,8 @@ import PaginationTable from './DataTable';
 import TypeModal from './TypeModal';
 import { isAuthenticated } from '../../api/auth';
 import { onCreateData, onGetData, onUpdateData } from '../../api';
-import { Alert } from 'rsuite';
+import { Alert, Notification } from 'rsuite';
+import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
 
 export default function Type() {
   const [showModal, setShowModal] = useState(false);
@@ -77,13 +78,14 @@ export default function Type() {
 
   const handleEdit = (data) => {
     setState({ ...state, loading: false, error: '' });
-    const { nom, description, _id } = data;
+    const { nom, description, _id, image } = data;
     setType({
       ...type,
       title: `Update ${nom}'s informations`,
       nom,
       description,
       _id,
+      image,
       update: true,
     });
     setShowModal(true);
@@ -95,7 +97,14 @@ export default function Type() {
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
-    Alert.success(res.message, 3000);
+
+    // Notification.open({
+    //   title: 'Success',
+    //   placement: 'bottomEnd',
+    //   description: <PlaceholderParagraph style={{ width: 320 }} rows={3} />,
+    // });
+
+    // Alert.success(res.message, 3000);
     setState({ ...state, loading: false, success: res.message });
     setShowModal(false);
 
@@ -117,7 +126,14 @@ export default function Type() {
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
-    Alert.success(res.message, 3000);
+
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Le lorem ipsum est, en imprimerie, une suite de mots sans une suite de mots sans ',
+    });
+
     setState({ ...state, loading: false, success: res.message });
     setShowModal(false);
 

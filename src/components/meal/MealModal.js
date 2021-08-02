@@ -157,7 +157,13 @@ export default function MealModal({
         {current >= 1 && (
           <>
             <Divider>Other Images</Divider>
-            <Uploader name='image' listType='picture' action={data.link}>
+            <Uploader
+              name='image'
+              listType='picture'
+              draggable
+              multiple
+              action={data.link}
+            >
               <button>
                 <Icon icon='camera-retro' size='4x' />
               </button>

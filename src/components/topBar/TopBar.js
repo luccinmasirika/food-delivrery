@@ -30,7 +30,7 @@ const TopBar = ({ history, window }) => {
   useEffect(() => {
     init();
     (async function () {
-      const res = await onGetData('/read/config/');
+      const res = await onGetData(`/read/config/${user._id}`);
       setConfig({
         ...config,
         logo: res.logo,

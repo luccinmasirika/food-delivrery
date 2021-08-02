@@ -3,7 +3,7 @@ import { isAuthenticated } from './auth';
 const { token } = isAuthenticated();
 const axios = require('axios').create({
   baseURL: `${API}/api`,
-  timeout: 1000,
+  timeout: 10000,
   headers: {
     Accept: 'application/json',
     Authorization: `Bearer ${token}`,
