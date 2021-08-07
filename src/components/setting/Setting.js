@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Input from '../../sections/Input';
 import Footer from '../footer/Footer';
-import { useHistory } from 'react-router';
 import Layout from '../Layout';
 import Header from '../navBar/Header';
-import { isAuthenticated, updateUserData } from '../../api/auth';
+import { isAuthenticated } from '../../api/auth';
+import { GetConfigContext, RunEffectContext } from '../../ConfigContext';
 import { API } from '../../config';
 import ConfigModal from './ConfigModal';
+import DeviseModal from './DeviseModal';
 import { onGetData, onUpdateData } from '../../api';
-import { getUser, updateUser } from '../../api/shop';
+import { onCreateData } from './../../api/index';
 import {
-  Alert,
   Icon,
   IconButton,
   Loader,
@@ -28,17 +28,13 @@ function previewFile(file, callback) {
   reader.readAsDataURL(file);
 }
 
-const styles = {
-  width: 250,
-  height: 150,
-};
-
 const Setting = () => {
   const { user, token } = isAuthenticated();
+  const configContext = useContext(GetConfigContext);
+  const runEffectContext = useContext(RunEffectContext);
   const [uploading, setUploading] = useState(false);
   const [fileInfo, setFileInfo] = useState(null);
   const [fileInfoIcon, setFileInfoIcon] = useState(null);
-
   const [userData, setUserData] = useState({
     firstName: '',
     lastName: '',
@@ -47,6 +43,16 @@ const Setting = () => {
     email: '',
     password: '',
   });
+  const { firstName, lastName, email, role, password, avatar } = userData;
+
+  useEffect(() => {
+    (async function () {
+      const data = await onGetData(`/user/${user._id}`, token);
+      const { firstName, lastName, role, email, avatar } = data;
+      setUserData({ firstName, lastName, role, email, avatar });
+    })();
+  }, []);
+
   const [state, setState] = useState({
     error: '',
     success: '',
@@ -54,68 +60,95 @@ const Setting = () => {
   });
   const [allDevise, setAllDevise] = useState();
   const [config, setConfig] = useState({
-    fraisParKm: 0,
-    rayonLimite: 0,
+    fraisParKm: configContext.fraisParKm,
+    rayonLimite: configContext.rayonLimite,
     devise: '',
+    logo: '',
+    icon: '',
   });
-  const [showModal, setShowModal] = useState(false);
-
+  const [deviseData, setDeviseData] = useState({
+    nom: '',
+    taux: '',
+    title: '',
+    _id: '',
+  });
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showDeviseModal, setShowDeviseModal] = useState(false);
   const [runEffect, setRunEffect] = useState('');
 
-  const { loader, success, error } = state;
-  const { fraisParKm, rayonLimite, devise } = config;
-
-  const init = async () => {
-    const { firstName, lastName, role, avatar, email } = user;
-    setUserData({ firstName, lastName, role, email, avatar });
-  };
+  const { fraisParKm, rayonLimite, devise, logo, icon } = configContext;
+  const { loading } = state;
+  const { title, nom, taux } = deviseData;
 
   const getDevise = async () => {
     const res = await onGetData(`/read/all/devise/${user._id}`);
     setAllDevise(res);
   };
-  const getConfig = async () => {
-    const res = await onGetData(`/read/config/${user._id}`);
-    setConfig({
-      fraisParKm: res.fraisParKm,
-      rayonLimite: res.rayonLimite,
-      devise: res.devise,
-    });
-  };
 
-  const { firstName, lastName, email, role, avatar, password } = userData;
-
-  function openModal() {
-    setShowModal(true);
+  function openConfigModal() {
+    setShowConfigModal(true);
   }
 
-  function closeModal() {
+  function closeConfigModal() {
     setState({ ...state, loading: false, error: '' });
-    setShowModal(false);
+    setConfig({
+      devise: '',
+      fraisParKm: configContext.fraisParKm,
+      rayonLimite: configContext.rayonLimite,
+    });
+    setShowConfigModal(false);
   }
 
-  const handelConfigChande = (props) => (value) => {
+  function openDeviseModal() {
+    setShowDeviseModal(true);
+  }
+
+  function closeDeviseModal() {
+    setState({ ...state, loading: false, error: '' });
+    setDeviseData({ title: '', nom: '', taux: '', _id: '' });
+    setShowDeviseModal(false);
+  }
+
+  function onEditDevise(data) {
+    openDeviseModal();
+    setDeviseData({
+      ...deviseData,
+      title: 'Update currency data',
+      nom: data.nom,
+      taux: data.taux,
+      _id: data._id,
+    });
+  }
+
+  const handelConfigChanche = (props) => (value) => {
     setConfig({
       ...config,
       [props]: value,
     });
   };
 
-  const handelChangeUpdate = (props) => (event) => {
-    setState({ ...state, error: '' });
-    setUserData({ ...userData, [props]: event.target.value });
+  const handelDeviseChanche = (props) => (value) => {
+    setDeviseData({
+      ...deviseData,
+      [props]: value,
+    });
   };
 
-  const onSubmitUpdate = async (id) => {
-    const user = { firstName, lastName, email, role, password };
-    setState({ error: false, success: false, loader: true });
-    const data = await updateUser(id, token, user);
-    if (data.error) {
-      return setState({ ...state, error: data.error, loader: false });
-    }
-    init();
-    setState({ ...state, loader: false, success: true });
-  };
+  // const handelChangeUpdate = (props) => (event) => {
+  //   setState({ ...state, error: '' });
+  //   setUserData({ ...userData, [props]: event.target.value });
+  // };
+
+  // const onSubmitUpdate = async (id) => {
+  //   const user = { firstName, lastName, email, role, password };
+  //   setState({ error: false, success: false, loader: true });
+  //   const data = await updateUser(id, token, user);
+  //   if (data.error) {
+  //     return setState({ ...state, error: data.error, loader: false });
+  //   }
+  //   init();
+  //   setState({ ...state, loader: false, success: true });
+  // };
 
   const onSubmitUpdateConfig = async (data) => {
     setState({ ...state, error: '', loading: true });
@@ -128,17 +161,68 @@ const Setting = () => {
       title: 'Success',
       placement: 'bottomEnd',
       description:
-        'Le lorem ipsum est, en imprimerie, une suite de mots sans une suite de mots sans ',
+        'Done. The realization of this operation was completely successful ',
     });
+
     setState({ ...state, loading: false, success: res.message });
+    runEffectContext();
+    setShowConfigModal(false);
+  };
+
+  const onSubmitCreateDevise = async (data) => {
+    setState({ ...state, loading: true });
+    const res = await onCreateData(`/create/devise/${user._id}`, {
+      nom: data.nom,
+      taux: data.taux,
+    });
+    if (res.error) {
+      Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description:
+          'Done. The realization of this operation was completely successful ',
+      });
+    }
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Done. The realization of this operation was completely successful ',
+    });
+    setState({ ...state, loading: false });
+    closeDeviseModal();
     setRunEffect(!runEffect);
-    setShowModal(false);
+  };
+
+  const onSubmitUpdateDevise = async (data) => {
+    setState({ ...state, loading: true });
+    const res = await onUpdateData(
+      `/update/devise/${user._id}?_id=${data._id}`,
+      {
+        nom: data.nom,
+        taux: data.taux,
+      }
+    );
+    if (res.error) {
+      Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description: res.error,
+      });
+    }
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Done. The realization of this operation was completely successful ',
+    });
+    setState({ ...state, loading: false });
+    closeDeviseModal();
+    setRunEffect(!runEffect);
   };
 
   useEffect(() => {
-    init();
     getDevise();
-    getConfig();
   }, [runEffect]);
 
   return (
@@ -152,18 +236,29 @@ const Setting = () => {
 
       <section className='main-content'>
         <ConfigModal
-          data={config}
-          showModal={showModal}
+          data={configContext}
+          showModal={showConfigModal}
           state={state}
-          closeModal={closeModal}
-          deviseData={
-            allDevise &&
-            allDevise.map((x) => {
-              return { label: x.nom, value: x._id };
+          closeModal={closeConfigModal}
+          handelChange={handelConfigChanche}
+          onSubmit={() =>
+            onSubmitUpdateConfig({
+              fraisParKm: config.fraisParKm,
+              rayonLimite: config.rayonLimite,
             })
           }
-          handelChange={handelConfigChande}
-          onSubmit={() => onSubmitUpdateConfig({ fraisParKm, rayonLimite })}
+        />
+        <DeviseModal
+          data={deviseData}
+          showModal={showDeviseModal}
+          state={state}
+          closeModal={closeDeviseModal}
+          handelChange={handelDeviseChanche}
+          onSubmit={() =>
+            title
+              ? onSubmitUpdateDevise(deviseData)
+              : onSubmitCreateDevise(deviseData)
+          }
         />
 
         <PanelGroup accordion bordered>
@@ -188,16 +283,14 @@ const Setting = () => {
                   </div>
                 </div>
                 <div className='col-md-8'>
-                  <div className='card-header card-default'>
-                    Mettre à jour le profil
-                  </div>
+                  <div className='card-header card-default'>Update profile</div>
                   <div className='card-body'>
                     <form method='post' className='well well-default'>
                       <div className='row'>
                         <div className='col-md-6 col-sm-12'>
                           <Input
                             icon='fa fa-user'
-                            action={handelChangeUpdate('firstName')}
+                            // action={handelChangeUpdate('firstName')}
                             placeholder='Nom'
                             type='text'
                             value={firstName}
@@ -206,7 +299,7 @@ const Setting = () => {
                         <div className='col-md-6 col-sm-12'>
                           <Input
                             icon='fa fa-user'
-                            action={handelChangeUpdate('lastName')}
+                            // action={handelChangeUpdate('lastName')}
                             placeholder='Postnom'
                             type='text'
                             value={lastName}
@@ -217,7 +310,7 @@ const Setting = () => {
                         <div className='col-md-6 col-sm-12'>
                           <Input
                             icon='fa fa-at'
-                            action={handelChangeUpdate('email')}
+                            // action={handelChangeUpdate('email')}
                             placeholder='Email'
                             type='text'
                             value={email}
@@ -226,7 +319,7 @@ const Setting = () => {
                         <div className='col-md-6 col-sm-12'>
                           <Input
                             icon='fa fa-unlock'
-                            action={handelChangeUpdate('password')}
+                            // action={handelChangeUpdate('password')}
                             placeholder='Mot de passe'
                             type='text'
                             value={password}
@@ -237,14 +330,14 @@ const Setting = () => {
                       {/* <InputImage action={handelChangeUpdate('')} /> */}
                       <button
                         type='button'
-                        onClick={() => onSubmitUpdate(user._id)}
+                        // onClick={() => onSubmitUpdate(user._id)}
                         class='btn btn-success btn-icon'
                       >
                         <i
                           className={`fa ${
-                            loader ? 'fa-spinner' : 'fa-floppy-o '
+                            loading ? 'fa-spinner' : 'fa-floppy-o '
                           }`}
-                          style={{ background: `${loader && 'transparent'}` }}
+                          style={{ background: `${loading && 'transparent'}` }}
                         ></i>
                         Sauvegarder
                       </button>
@@ -272,25 +365,55 @@ const Setting = () => {
                       }}
                       onSuccess={(response, file) => {
                         setUploading(false);
-                        Alert.success('Uploaded successfully');
+                        runEffectContext();
+                        Notification['success']({
+                          title: 'Success',
+                          placement: 'bottomEnd',
+                          description:
+                            'Done. The realization of this operation was completely successful ',
+                        });
                       }}
                       onError={() => {
                         setFileInfo(null);
                         setUploading(false);
-                        Alert.error('Upload failed');
+                        Notification['error']({
+                          title: 'Error',
+                          placement: 'bottomEnd',
+                          description:
+                            'Done. The realization of this operation was completely successful ',
+                        });
                       }}
                     >
-                      <button style={styles}>
+                      <button style={{ width: 250, height: 'auto' }}>
                         {uploading && <Loader backdrop center />}
                         {fileInfo ? (
-                          <img
-                            src={fileInfo}
-                            alt='logo'
-                            width='100%'
-                            height='100%'
-                          />
+                          <div
+                            style={{
+                              margin: '40px',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            <img
+                              src={fileInfo}
+                              alt='logo'
+                              width='100%'
+                              height='auto'
+                            />
+                          </div>
                         ) : (
-                          <Icon icon='camera-retro' size='5x' />
+                          <div
+                            style={{
+                              margin: '40px',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            <img
+                              src={`${API}/${logo}`}
+                              alt='logo'
+                              width='100%'
+                              height='auto'
+                            />
+                          </div>
                         )}
                       </button>
                     </Uploader>
@@ -314,25 +437,57 @@ const Setting = () => {
                       }}
                       onSuccess={(response, file) => {
                         setUploading(false);
-                        Alert.success('Uploaded successfully');
+                        setFileInfoIcon(null);
+                        runEffectContext();
+                        Notification['success']({
+                          title: 'Success',
+                          placement: 'bottomEnd',
+                          description:
+                            'Done. The realization of this operation was completely successful ',
+                        });
                       }}
                       onError={() => {
-                        setFileInfo(null);
+                        setFileInfoIcon(null);
                         setUploading(false);
-                        Alert.error('Upload failed');
+                        setRunEffect(!runEffect);
+                        Notification['error']({
+                          title: 'Error',
+                          placement: 'bottomEnd',
+                          description:
+                            'Done. The realization of this operation was completely successful ',
+                        });
                       }}
                     >
-                      <button style={styles}>
+                      <button style={{ width: '100%', height: 'auto' }}>
                         {uploading && <Loader backdrop center />}
                         {fileInfoIcon ? (
-                          <img
-                            src={fileInfoIcon}
-                            alt='logo'
-                            width='100%'
-                            height='100%'
-                          />
+                          <div
+                            style={{
+                              margin: '4px',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            <img
+                              src={fileInfoIcon}
+                              alt='logo'
+                              width='100%'
+                              height='auto'
+                            />
+                          </div>
                         ) : (
-                          <Icon icon='camera-retro' size='5x' />
+                          <div
+                            style={{
+                              margin: '4px',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            <img
+                              src={`${API}/${icon}`}
+                              alt='logo'
+                              width='100%'
+                              height='auto'
+                            />
+                          </div>
                         )}
                       </button>
                     </Uploader>
@@ -361,13 +516,16 @@ const Setting = () => {
                               {_.nom}{' '}
                               <em
                                 title='Exchange rate'
-                                className='badge badge-indigo'
+                                className='badge badge-primary'
                               >
                                 {_.taux}{' '}
                               </em>
                             </span>
                             <span title='Edit currency'>
-                              <IconButton icon={<Icon icon='edit2' />} />
+                              <IconButton
+                                onClick={() => onEditDevise(_)}
+                                icon={<Icon icon='edit2' />}
+                              />
                             </span>
                           </li>
                         ))}
@@ -376,7 +534,10 @@ const Setting = () => {
                   <div className='card-footer '>
                     <h6 className='float-left'>Currency</h6>
                     <span title='Add new currency' className='float-right'>
-                      <IconButton icon={<Icon icon='plus-circle' />} />
+                      <IconButton
+                        onClick={openDeviseModal}
+                        icon={<Icon icon='plus-circle' />}
+                      />
                     </span>
                   </div>
                 </div>
@@ -402,7 +563,7 @@ const Setting = () => {
                             <em className='text-indigo'>
                               {devise && devise.nom}{' '}
                             </em>
-                            <em className='badge badge-indigo'>
+                            <em className='badge badge-primary'>
                               {devise && devise.taux}{' '}
                             </em>
                           </span>
@@ -416,7 +577,7 @@ const Setting = () => {
                         <div>
                           <span className='mr-2'>
                             <em className='text-indigo'>{rayonLimite} </em>
-                            <em className='badge badge-indigo'>Km </em>
+                            <em className='badge badge-primary'>Km </em>
                           </span>
                         </div>
                       </li>
@@ -428,7 +589,7 @@ const Setting = () => {
                         <div>
                           <span className='mr-2'>
                             <em className='text-indigo'>{fraisParKm}$ </em>
-                            <em className='badge badge-indigo'>Km </em>
+                            <em className='badge badge-primary'>Km </em>
                           </span>
                         </div>
                       </li>
@@ -438,7 +599,7 @@ const Setting = () => {
                     <h6 className='float-left'>Global config</h6>
                     <span title='Add new currency' className='float-right'>
                       <IconButton
-                        onClick={openModal}
+                        onClick={openConfigModal}
                         icon={<Icon icon='edit2' />}
                       />
                     </span>

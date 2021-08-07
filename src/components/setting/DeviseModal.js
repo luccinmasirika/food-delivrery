@@ -3,18 +3,24 @@ import {
   ControlLabel,
   Form,
   FormGroup,
+  Icon,
+  Input,
   InputNumber,
+  InputPicker,
   Loader,
   Message,
   Modal,
+  SelectPicker,
+  Uploader,
 } from 'rsuite';
 
-export default function ConfigModal({
+export default function DeviseModal({
   data,
   state,
   showModal,
   closeModal,
   handelChange,
+  deviseData,
   onSubmit,
 }) {
   return (
@@ -23,7 +29,7 @@ export default function ConfigModal({
         <Loader backdrop content='loading...' style={{ zIndex: 10 }} vertical />
       )}
       <Modal.Header>
-        <Modal.Title>Configuration</Modal.Title>
+        <Modal.Title>Update {data.nom} currency data</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {state.error && (
@@ -37,29 +43,26 @@ export default function ConfigModal({
         <Form fluid>
           <FormGroup>
             <ControlLabel>
-              Delivrery radius <code>*</code>
+              Currency <code>*</code>
             </ControlLabel>
-            <InputNumber
-              postfix='Km'
-              placeholder={1}
-              defaultValue={data.rayonLimite}
+            <Input
+              defaultValue={data.nom}
               min={1}
               step={1}
-              onChange={handelChange('rayonLimite')}
+              onChange={handelChange('nom')}
               block
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>
-              Fee per Km <code>*</code>
+              Exchange rate <code>*</code>
             </ControlLabel>
             <InputNumber
-              postfix='$'
-              placeholder={0.1}
               min={0.1}
               step={0.1}
-              defaultValue={data.fraisParKm}
-              onChange={handelChange('fraisParKm')}
+              disabled={data.taux === 1}
+              defaultValue={data.taux}
+              onChange={handelChange('taux')}
               block
             />
           </FormGroup>

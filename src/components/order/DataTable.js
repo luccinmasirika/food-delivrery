@@ -1,9 +1,7 @@
-import { API } from '../../config';
 import TablePagination from 'rsuite/lib/Table/TablePagination';
 import dayjs from 'dayjs';
-import { Panel, Table } from 'rsuite';
-import { useState } from 'react';
-import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
+import { Table } from 'rsuite';
+import { isMobile } from 'react-device-detect';
 
 export default function PaginationTable({
   data,
@@ -19,37 +17,29 @@ export default function PaginationTable({
   const onSwitch = (data) => {
     switch (data) {
       case 'PENDING_FOR_VALIDATION':
-        // return { label: 'PENDING FOR VALIDATION', color: 'primary' };
         return (
           <span className='badge badge-primary badge-pill'>
             PENDING FOR VALIDATION
           </span>
         );
       case 'VALIDATED':
-        // return { label: 'VALIDATED', color: 'success' };
         return (
           <span className='badge badge-success badge-pill'>VALIDATED</span>
         );
       case 'DENIED':
-        // return { label: 'DENIED', color: 'danger' };
         return <span className='badge badge-danger badge-pill'>DENIED</span>;
       case 'PENDING_FOR_PAYMENT':
-        // return { label: 'PENDING FOR PAYMENT', color: 'waring' };
         return (
-          <span className='badge badge-waring badge-pill'>
+          <span className='badge badge-warning badge-pill'>
             PENDING FOR PAYMENT
           </span>
         );
       case 'PAYIED':
-        // return { label: 'PAYIED', color: 'info' };
         return <span className='badge badge-info badge-pill'>PAYIED</span>;
       case 'CANCELED':
-        // return { label: 'CANCELED', color: 'teal' };
         return <span className='badge badge-teal badge-pill'>CANCELED</span>;
       case 'CLOSED':
-        // return { label: 'CLOSED', color: 'indigo' };
         return <span className='badge badge-indigo badge-pill'>CLOSED</span>;
-
       default:
         break;
     }
@@ -57,11 +47,13 @@ export default function PaginationTable({
 
   return (
     <div>
-      <Panel header='Filters' collapsible>
-        <PlaceholderParagraph />
-      </Panel>
       <Table height={370} data={data} rowHeight={60} loading={loading}>
-        <Table.Column width={150} align='center' resizable={true}>
+        <Table.Column
+          width={150}
+          align='center'
+          resizable={true}
+          fixed={!isMobile && 'left'}
+        >
           <Table.HeaderCell>Reference</Table.HeaderCell>
           <Table.Cell>
             {(data) => (
@@ -72,9 +64,24 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200} resizable={true}>
+        <Table.Column width={150} resizable={true} fixed={!isMobile && 'left'}>
           <Table.HeaderCell>Produit</Table.HeaderCell>
           <Table.Cell>{(data) => data.produit.nom}</Table.Cell>
+        </Table.Column>
+
+        <Table.Column width={150} resizable={true}>
+          <Table.HeaderCell>Establishment</Table.HeaderCell>
+          <Table.Cell>{(data) => data.ets.nom}</Table.Cell>
+        </Table.Column>
+
+        <Table.Column width={150} align='center' resizable={true}>
+          <Table.HeaderCell>Produit</Table.HeaderCell>
+          <Table.Cell>{(data) => `${data.prix.toFixed(2)} $`}</Table.Cell>
+        </Table.Column>
+
+        <Table.Column width={150} align='center' resizable={true}>
+          <Table.HeaderCell>Quantity</Table.HeaderCell>
+          <Table.Cell dataKey='quantity' />
         </Table.Column>
 
         <Table.Column width={180} resizable={true}>
@@ -82,7 +89,7 @@ export default function PaginationTable({
           <Table.Cell>{(data) => onSwitch(data.etat)}</Table.Cell>
         </Table.Column>
 
-        <Table.Column width={250} resizable={true}>
+        <Table.Column width={200} resizable={true}>
           <Table.HeaderCell>Client</Table.HeaderCell>
           <Table.Cell>
             {(data) => (
@@ -100,7 +107,22 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={120} fixed='right'>
+        <Table.Column width={150} resizable={true} fixed={!isMobile && 'right'}>
+          <Table.HeaderCell>Delivrery man</Table.HeaderCell>
+          <Table.Cell>
+            {(data) =>
+              data.livreur ? (
+                <span>
+                  {data.livreur.firstName} {data.livreur.lastName}
+                </span>
+              ) : (
+                <span>-</span>
+              )
+            }
+          </Table.Cell>
+        </Table.Column>
+
+        <Table.Column width={140} align='center' fixed='right'>
           <Table.HeaderCell>Action</Table.HeaderCell>
 
           <Table.Cell>
@@ -131,8 +153,6 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
       </Table>
-
-      {console.log('tot', page, total)}
 
       <TablePagination
         lengthMenu={[

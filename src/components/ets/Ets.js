@@ -7,12 +7,11 @@ import { onCreateData, onGetData, onUpdateData } from '../../api';
 import PaginationTable from './DataTable';
 import Footer from '../footer/Footer';
 import Filters from './Filters';
-import { Alert, Notification } from 'rsuite';
-import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
+import { Notification } from 'rsuite';
 
 export default function Ets() {
   const [showModal, setShowModal] = useState(false);
-  const { user } = isAuthenticated();
+  const { user, token } = isAuthenticated();
 
   const [ets, setEts] = useState({
     title: '',
@@ -50,18 +49,7 @@ export default function Ets() {
 
   const { loading } = state;
   const { total, page, pages, limit } = paginate;
-  const {
-    title,
-    image,
-    update,
-    formData,
-    _id,
-    type,
-    ouverture,
-    fermeture,
-    long,
-    lat,
-  } = ets;
+  const { title, image, update, formData, _id } = ets;
 
   function openModal(title) {
     setEts({ ...ets, title });
@@ -130,19 +118,7 @@ export default function Ets() {
 
   const handleEdit = (data) => {
     setState({ ...state, loading: false, error: '' });
-    const {
-      nom,
-      description,
-      _id,
-      type,
-      image,
-      ouverture,
-      fermeture,
-      long,
-      lat,
-      localisation,
-      heure,
-    } = data;
+    const { nom, description, _id, type, image, localisation, heure } = data;
     setEts({
       ...ets,
       title: `Update ${nom}`,
@@ -163,10 +139,18 @@ export default function Ets() {
 
   const onDisableUnable = async (id) => {
     setState({ ...state, loading: true });
-    const res = await onGetData(`/disableUnable/ets/${user._id}?_id=${id._id}`);
+    const res = await onGetData(
+      `/disableUnable/ets/${user._id}?_id=${id._id}`,
+      token
+    );
 
     if (res && res.error) {
-      Alert.error(res.error, 3000);
+      Notification['error']({
+        title: 'Denied',
+        placement: 'bottomEnd',
+        description: res.error,
+      });
+
       return setState({
         ...state,
         loading: false,
@@ -180,11 +164,16 @@ export default function Ets() {
 
   const onSubmitCreate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onCreateData(`/create/ets/${user._id}`, data);
+    const res = await onCreateData(`/create/ets/${user._id}`, data, token);
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
-    Alert.success(res.message, 3000);
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Done. The realization of this operation was completely successful',
+    });
     setState({ ...state, loading: false, success: res.message });
     setEts({
       nom: '',
@@ -204,16 +193,22 @@ export default function Ets() {
 
   const onSubmitUpdate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onUpdateData(`/update/ets/${user._id}?_id=${_id}`, data);
+    const res = await onUpdateData(
+      `/update/ets/${user._id}?_id=${_id}`,
+      data,
+      token
+    );
+
+    if (res && res.error) {
+      return setState({ ...state, error: res.error, loading: false });
+    }
 
     Notification['success']({
       title: 'Success',
       placement: 'bottomEnd',
       description:
-        'Le lorem ipsum est, en imprimerie, une suite de mots sans une suite de mots sans ',
+        'Done. The realization of this operation was completely successful ',
     });
-
-    // Alert.success(res.message, 3000);
 
     setState({ ...state, loading: false, success: res.message });
     setShowModal(false);
@@ -238,7 +233,8 @@ export default function Ets() {
       const res = await onGetData(
         `/read/all/ets/${user._id}?limit=${limit}&page=${page}&nom=${
           filters.name
-        }&disable=${filters.status || ''}&type=${filters.type || ''}`
+        }&disable=${filters.status || ''}&type=${filters.type || ''}`,
+        token
       );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
@@ -256,7 +252,10 @@ export default function Ets() {
   useEffect(() => {
     (async () => {
       setState({ ...state, loading: true });
-      const res = await onGetData(`/read/all/type/${user._id}?limit=0&page=1`);
+      const res = await onGetData(
+        `/read/all/type/${user._id}?limit=0&page=1`,
+        token
+      );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
       }

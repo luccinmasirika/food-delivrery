@@ -1,18 +1,17 @@
 import { API } from '../config';
-import { isAuthenticated } from './auth';
-const { token } = isAuthenticated();
 const axios = require('axios').create({
   baseURL: `${API}/api`,
   timeout: 10000,
-  headers: {
-    Accept: 'application/json',
-    Authorization: `Bearer ${token}`,
-  },
 });
 
-export const onCreateData = async (url, data) => {
+export const onCreateData = async (url, data, token) => {
   try {
-    const response = await axios.post(url, data);
+    const response = await axios.post(url, data, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -21,9 +20,14 @@ export const onCreateData = async (url, data) => {
   }
 };
 
-export const onUpdateData = async (url, data) => {
+export const onUpdateData = async (url, data, token) => {
   try {
-    const response = await axios.put(url, data);
+    const response = await axios.put(url, data, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -32,9 +36,14 @@ export const onUpdateData = async (url, data) => {
   }
 };
 
-export const onGetData = async (url) => {
+export const onGetData = async (url, token) => {
   try {
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     if (error.response) {

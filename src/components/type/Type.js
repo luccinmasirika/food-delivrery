@@ -11,7 +11,7 @@ import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
 
 export default function Type() {
   const [showModal, setShowModal] = useState(false);
-  const { user } = isAuthenticated();
+  const { user, token } = isAuthenticated();
 
   const [type, setType] = useState({
     title: '',
@@ -46,9 +46,17 @@ export default function Type() {
   }
 
   function closeModal() {
-    setState({ ...state, loading: false, error: '' });
     setShowModal(false);
-    setType({ ...type, title: '', nom: '', description: '', image: '' });
+    setState({ ...state, loading: false, error: '' });
+    setType({
+      ...type,
+      title: '',
+      nom: '',
+      description: '',
+      image: '',
+      formData: new FormData(),
+      update: false,
+    });
   }
 
   const handleChange = (value, name) => {
@@ -93,7 +101,7 @@ export default function Type() {
 
   const onSubmitCreate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onCreateData(`/create/type/${user._id}`, data);
+    const res = await onCreateData(`/create/type/${user._id}`, data, token);
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
@@ -105,24 +113,18 @@ export default function Type() {
     // });
 
     // Alert.success(res.message, 3000);
-    setState({ ...state, loading: false, success: res.message });
-    setShowModal(false);
-
-    setType({
-      ...allType,
-      title: '',
-      nom: '',
-      description: '',
-      image: '',
-      formData: new FormData(),
-    });
-
+    setState({ ...state, success: res.message });
+    closeModal();
     setRunEffect(!runEffect);
   };
 
   const onSubmitUpdate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onUpdateData(`/update/type/${user._id}?_id=${_id}`, data);
+    const res = await onUpdateData(
+      `/update/type/${user._id}?_id=${_id}`,
+      data,
+      token
+    );
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
@@ -131,21 +133,11 @@ export default function Type() {
       title: 'Success',
       placement: 'bottomEnd',
       description:
-        'Le lorem ipsum est, en imprimerie, une suite de mots sans une suite de mots sans ',
+        'Done. The realization of this operation was completely successful',
     });
 
-    setState({ ...state, loading: false, success: res.message });
-    setShowModal(false);
-
-    setType({
-      ...allType,
-      title: '',
-      nom: '',
-      description: '',
-      image: '',
-      formData: new FormData(),
-    });
-
+    setState({ ...state, success: res.message });
+    closeModal();
     setRunEffect(!runEffect);
   };
 
@@ -153,7 +145,8 @@ export default function Type() {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/type/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/type/${user._id}?limit=${limit}&page=${page}`,
+        token
       );
       setAllType(res.data);
       setPaginate({

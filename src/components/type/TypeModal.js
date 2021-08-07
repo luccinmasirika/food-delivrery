@@ -31,17 +31,16 @@ export default function TypeModal({
       )}
       <Modal.Header>
         <Modal.Title>{title}</Modal.Title>
-      </Modal.Header>
-
-      <Modal.Body>
         {state.error && (
           <Message
             type='error'
             description={state.error}
-            style={{ marginBottom: '15px' }}
+            style={{ margin: '15px 0 0 0' }}
           />
         )}
+      </Modal.Header>
 
+      <Modal.Body>
         <Form fluid onChange={handleChange}>
           <FormGroup>
             <ControlLabel>
@@ -70,7 +69,7 @@ export default function TypeModal({
           defaultFileList={btnStatus ? [{ url: `${API}/${data.image}` }] : []}
           onChange={handleImageChange}
         >
-          <button>
+          <button style={{ display: btnStatus && 'none' }}>
             <Icon icon='camera-retro' size='lg' />
           </button>
         </Uploader>

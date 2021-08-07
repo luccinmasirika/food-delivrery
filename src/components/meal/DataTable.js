@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { API } from '../../config';
 import TablePagination from 'rsuite/lib/Table/TablePagination';
 import dayjs from 'dayjs';
-import { Button, Icon, Modal, Panel, Table } from 'rsuite';
-import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
+import { Button, Icon, Modal, Table } from 'rsuite';
 import Avatar from '@material-ui/core/Avatar';
 import { isMobile } from 'react-device-detect';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
@@ -73,12 +72,10 @@ export default function PaginationTable({
       </div>
     );
   };
+
   return (
     <div>
       {show && disableModal(state)}
-      <Panel header='Filters' collapsible>
-        <PlaceholderParagraph />
-      </Panel>
       <Table height={370} data={data} rowHeight={60} loading={loading}>
         <Table.Column width={150} align='center' fixed={!isMobile && 'left'}>
           <Table.HeaderCell>Image</Table.HeaderCell>
@@ -105,6 +102,11 @@ export default function PaginationTable({
         <Table.Column width={200}>
           <Table.HeaderCell>Establishment</Table.HeaderCell>
           <Table.Cell>{(data) => data.ets.nom}</Table.Cell>
+        </Table.Column>
+
+        <Table.Column width={200}>
+          <Table.HeaderCell>Menu</Table.HeaderCell>
+          <Table.Cell>{(data) => data.menu.nom}</Table.Cell>
         </Table.Column>
 
         <Table.Column width={170}>
@@ -188,7 +190,7 @@ export default function PaginationTable({
                   </button>
                   <button
                     onClick={() => onPromo(data)}
-                    title={data.promo ? 'Promote' : 'Unpromote'}
+                    title={data.promo ? 'Unpromote' : 'Promote'}
                     class={`btn ${
                       !data.promo ? 'bg-light' : 'btn-warning'
                     } btn-sm btn-border box-shadow btn-circle m-1`}

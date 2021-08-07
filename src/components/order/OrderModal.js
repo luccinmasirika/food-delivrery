@@ -72,7 +72,7 @@ export default function OrderModal({
           autoUpload={false}
           onChange={handleImageChange}
         >
-          <button>
+          <button style={{ display: btnStatus && 'none' }}>
             <Icon icon='camera-retro' size='lg' />
           </button>
         </Uploader>

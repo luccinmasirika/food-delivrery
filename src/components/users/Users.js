@@ -374,7 +374,12 @@ const Users = () => {
 
   return (
     <Layout>
-      <Header parent='Home' content='Users' title='Users management' create={true} />
+      <Header
+        parent='Home'
+        content='Users'
+        title='Users management'
+        create={false}
+      />
       {createModal()}
       {updateModal()}
       <section className='main-content'>

@@ -16,6 +16,8 @@ import {
   Uploader,
 } from 'rsuite';
 
+import { API } from '../../config';
+
 export default function MealModal({
   title,
   data,
@@ -32,6 +34,7 @@ export default function MealModal({
   current,
   onFinish,
 }) {
+  
   return (
     <Modal size={'xs'} show={showModal} onHide={closeModal}>
       {state.loading && (
@@ -39,6 +42,13 @@ export default function MealModal({
       )}
       <Modal.Header>
         <Modal.Title>{title}</Modal.Title>
+        {state.error && (
+          <Message
+            type='error'
+            description={state.error}
+            style={{ margin: '15px 0 0 0' }}
+          />
+        )}
       </Modal.Header>
       <Modal.Body>
         <Steps current={current}>
@@ -46,20 +56,6 @@ export default function MealModal({
           <Steps.Item title='Other' />
         </Steps>
         <Divider />
-        {state.loading && (
-          <Message
-            description={<Loader content='Loading...' />}
-            style={{ marginBottom: '15px' }}
-          />
-        )}
-
-        {state.error && (
-          <Message
-            type='error'
-            description={state.error}
-            style={{ marginBottom: '15px' }}
-          />
-        )}
 
         {current < 1 && (
           <>
@@ -90,7 +86,9 @@ export default function MealModal({
                   data={etsData}
                   name='ets'
                   value={data.ets}
-                  defaultValue={'Select Establishment'}
+                  placeholder={
+                    data.ets.nom ? data.ets.nom : 'Select Establishment'
+                  }
                   onChange={handleSelectChange('ets')}
                   block
                 />
@@ -106,7 +104,9 @@ export default function MealModal({
                       data={menuData}
                       name='menu'
                       value={data.menu}
-                      defaultValue={'Select Menu'}
+                      placeholder={
+                        data.menu.nom ? data.menu.nom : 'Select Menu'
+                      }
                       onChange={handleSelectChange('menu')}
                       block
                     />
@@ -117,7 +117,7 @@ export default function MealModal({
                     </ControlLabel>
                     <InputNumber
                       postfix='$'
-                      placeholder={0.1}
+                      placeholder={data.prix}
                       min={0.1}
                       step={0.1}
                       onChange={handleSelectChange('prix')}
@@ -132,7 +132,7 @@ export default function MealModal({
                     <InputNumber
                       postfix='Min'
                       onChange={handleSelectChange('delais')}
-                      placeholder={1}
+                      placeholder={data.delais}
                       min={0}
                       block
                     />
@@ -147,8 +147,11 @@ export default function MealModal({
               disabled={btnStatus}
               autoUpload={false}
               onChange={handleImageChange}
+              defaultFileList={
+                btnStatus ? [{ url: `${API}/${data.image}` }] : []
+              }
             >
-              <button>
+              <button style={{ display: btnStatus && 'none' }}>
                 <Icon icon='camera-retro' size='lg' />
               </button>
             </Uploader>

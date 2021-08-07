@@ -6,22 +6,14 @@ import PaginationTable from './DataTable';
 import MenuModal from './MenuModal';
 import { isAuthenticated } from '../../api/auth';
 import { onCreateData, onGetData, onUpdateData } from '../../api';
-import {
-  Alert,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  Input,
-  Loader,
-} from 'rsuite';
+import Filters from './Filters';
+import { Notification } from 'rsuite';
 
 export default function Menu() {
   const [showModal, setShowModal] = useState(false);
-  const [showCatModal, setShowCatModal] = useState(false);
-  const { user } = isAuthenticated();
+  const { user, token } = isAuthenticated();
 
-  const [type, setType] = useState({
+  const [menu, setMenu] = useState({
     title: '',
     nom: '',
     description: '',
@@ -45,37 +37,59 @@ export default function Menu() {
     success: '',
     loading: false,
   });
+  const [filters, setFilters] = useState({
+    status: '',
+    ets: '',
+    name: '',
+  });
   const [runEffect, setRunEffect] = useState(false);
 
-  const { loading } = state;
+  const { loading, error } = state;
   const { total, page, pages, limit } = paginate;
-  const { title, image, update, formData, category, ets, _id } = type;
+  const { title, image, update, formData, _id } = menu;
 
   function openModal(title) {
-    setType({ ...type, title });
+    setMenu({ ...menu, title });
     setShowModal(true);
   }
 
   function closeModal() {
     setState({ ...state, loading: false, error: '' });
     setShowModal(false);
-    setType({ ...type, title: '', nom: '', description: '', image: '' });
+    setMenu({
+      ...menu,
+      title: '',
+      nom: '',
+      description: '',
+      image: '',
+      ets: '',
+      update: false,
+      _id: '',
+      formData: new FormData(),
+    });
   }
+
+  const handelFilterChange = (props) => (value) => {
+    setFilters({
+      ...filters,
+      [props]: value,
+    });
+  };
 
   const handleChange = (value, name) => {
     setState({ ...state, loading: false, error: '' });
     const { nom, description } = value;
-    setType({ ...type, nom, description });
+    setMenu({ ...menu, nom, description });
     formData.set(name.target.name, name.target.value);
   };
 
   const handleImageChange = (value) => {
     setState({ ...state, loading: false, error: '' });
-    setType({
-      ...type,
+    setMenu({
+      ...menu,
       image: value[0] && value[0].blobFile,
     });
-    type.formData.append('image', value[0] && value[0].blobFile);
+    menu.formData.set('image', value[0] && value[0].blobFile);
   };
 
   const handleChangePage = (data) => {
@@ -89,13 +103,14 @@ export default function Menu() {
 
   const handleEdit = (data) => {
     setState({ ...state, loading: false, error: '' });
-    const { nom, description, _id, category, ets } = data;
-    setType({
-      ...type,
+    const { nom, description, _id, category, ets, image } = data;
+    setMenu({
+      ...menu,
       title: `Update ${nom}'s informations`,
       nom,
       description,
       category,
+      image,
       ets,
       _id,
       update: true,
@@ -105,24 +120,30 @@ export default function Menu() {
 
   const handleSelectChange = (props) => (value) => {
     setState({ ...state, loading: false, error: '' });
-    setType({ ...type, [props]: value });
+    setMenu({ ...menu, [props]: value });
     formData.set(props, value);
   };
 
   const onSubmitCreate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onCreateData(`/create/menu/${user._id}`, data);
+    const res = await onCreateData(`/create/menu/${user._id}`, data, token);
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
-    Alert.success(res.message, 3000);
+
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Done. The realization of this operation was completely successful',
+    });
+
     setState({ ...state, loading: false, success: res.message });
-    setType({
-      ...type,
+    setMenu({
+      ...menu,
       nom: '',
       titre: '',
       description: '',
-      category: '',
       ets: '',
       image: '',
       formData: new FormData(),
@@ -133,20 +154,30 @@ export default function Menu() {
 
   const onSubmitUpdate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onUpdateData(`/update/menu/${user._id}?_id=${_id}`, data);
+    const res = await onUpdateData(
+      `/update/menu/${user._id}?_id=${_id}`,
+      data,
+      token
+    );
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
-    Alert.success(res.message, 3000);
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Done. The realization of this operation was completely successful',
+    });
     setState({ ...state, loading: false, success: res.message });
-    setType({
-      ...type,
+    setMenu({
+      ...menu,
       nom: '',
       titre: '',
       description: '',
-      category: '',
       ets: '',
       image: '',
+      _id: '',
+      update: false,
       formData: new FormData(),
     });
     setShowModal(false);
@@ -156,11 +187,17 @@ export default function Menu() {
   const onDisableUnable = async (id) => {
     setState({ ...state, loading: true });
     const res = await onGetData(
-      `/disableUnable/menu/${user._id}?_id=${id._id}`
+      `/disableUnable/menu/${user._id}?_id=${id._id}`,
+      token
     );
 
     if (res && res.error) {
-      Alert.error(res.error, 3000);
+      Notification['error']({
+        title: 'Denied',
+        placement: 'bottomEnd',
+        description: res.error,
+      });
+
       return setState({
         ...state,
         loading: false,
@@ -176,7 +213,10 @@ export default function Menu() {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/menu/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/menu/${user._id}?limit=${limit}&page=${page}&nom=${
+          filters.name
+        }&disable=${filters.status || ''}&ets=${filters.ets || ''}`,
+        token
       );
 
       setAllType(res && res.data);
@@ -187,15 +227,16 @@ export default function Menu() {
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit, runEffect, page]);
+  }, [limit, runEffect, page, filters.name, filters.ets, filters.status]);
 
   useEffect(() => {
     (async () => {
       setState({ ...state, loading: true });
-      const res = await onGetData(`/read/all/ets/${user._id}?disable=false`);
-
+      const res = await onGetData(
+        `/read/all/ets/${user._id}?disable=false`,
+        token
+      );
       setAllEts(res.data);
-
       setState({ ...state, loading: false });
     })();
   }, [runEffect]);
@@ -211,12 +252,10 @@ export default function Menu() {
         create={true}
       />
 
-      {console.log('test', allEts)}
-
       <section className='main-content'>
         <MenuModal
           title={title}
-          data={type}
+          data={menu}
           showModal={showModal}
           state={state}
           closeModal={closeModal}
@@ -235,6 +274,7 @@ export default function Menu() {
           }
         />
         <div className='card'>
+          <Filters onChange={handelFilterChange} data={allEts} />
           <PaginationTable
             data={allType}
             total={total}
@@ -249,7 +289,6 @@ export default function Menu() {
           />
         </div>
       </section>
-
       <Footer />
     </Layout>
   );

@@ -38,16 +38,15 @@ export default function EtsModal({
       )}
       <Modal.Header>
         <Modal.Title>{title}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
         {state.error && (
           <Message
             type='error'
             description={state.error}
-            style={{ marginBottom: '15px' }}
+            style={{ margin: '15px 0 0 0' }}
           />
         )}
-
+      </Modal.Header>
+      <Modal.Body>
         <Form fluid onChange={handleChange}>
           <FormGroup>
             <ControlLabel>
@@ -138,14 +137,14 @@ export default function EtsModal({
               <Uploader
                 name='image'
                 listType='picture'
-                disabled={btnStatus}
+                disabled={btnStatus} 
                 autoUpload={false}
                 defaultFileList={
                   btnStatus ? [{ url: `${API}/${data.image}` }] : []
                 }
                 onChange={handleImageChange}
               >
-                <button>
+                <button style={{ display: btnStatus && 'none' }}>
                   <Icon icon='camera-retro' size='lg' />
                 </button>
               </Uploader>

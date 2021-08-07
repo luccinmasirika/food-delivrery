@@ -3,24 +3,23 @@ import Layout from '../Layout';
 import Header from '../navBar/Header';
 import { useState, useEffect } from 'react';
 import PaginationTable from './DataTable';
-import OrderModal from './OrderModal';
 import { isAuthenticated } from '../../api/auth';
-import { onCreateData, onGetData } from '../../api';
+import { onGetData, onUpdateData } from '../../api';
 import { Alert } from 'rsuite';
+import Filters from './Filters';
 
-export default function Type() {
-  const [showModal, setShowModal] = useState(false);
-  const { user } = isAuthenticated();
+export default function Order() {
+  const { user, token } = isAuthenticated();
 
-  const [type, setType] = useState({
-    title: '',
-    nom: '',
-    description: '',
-    image: '',
-    formData: new FormData(),
-    update: false,
+  const [filters, setFilters] = useState({
+    status: '',
+    ets: '',
+    livreur: '',
+    name: '',
   });
-  const [allType, setAllType] = useState([]);
+  const [allEts, setAllEts] = useState([]);
+  const [allUser, setAllUser] = useState([]);
+  const [allOrder, setAllOrder] = useState([]);
   const [paginate, setPaginate] = useState({
     total: 0,
     page: 0,
@@ -36,33 +35,12 @@ export default function Type() {
 
   const { loading } = state;
   const { total, page, pages, limit } = paginate;
-  const { title, image, update, formData } = type;
 
-  function openModal(title) {
-    setType({ ...type, title });
-    setShowModal(true);
-  }
-
-  function closeModal() {
-    setState({ ...state, loading: false, error: '' });
-    setShowModal(false);
-    setType({ ...type, title: '', nom: '', description: '', image: '' });
-  }
-
-  const handleChange = (value, name) => {
-    setState({ ...state, loading: false, error: '' });
-    const { nom, description } = value;
-    setType({ ...type, nom, description });
-    formData.set(name.target.name, name.target.value);
-  };
-
-  const handleImageChange = (value) => {
-    setState({ ...state, loading: false, error: '' });
-    setType({
-      ...type,
-      image: value[0] && value[0].blobFile,
+  const handelFilterChange = (props) => (value) => {
+    setFilters({
+      ...filters,
+      [props]: value,
     });
-    type.formData.append('image', value[0] && value[0].blobFile);
   };
 
   const handleChangePage = (data) => {
@@ -74,45 +52,31 @@ export default function Type() {
     setPaginate({ ...paginate, limit: data, page: 1 });
   };
 
-  const handleEdit = (data) => {
-    setState({ ...state, loading: false, error: '' });
-    const { nom, description } = data;
-    setType({
-      ...type,
-      title: `Update ${nom}'s informations`,
-      nom,
-      description,
-      update: true,
-    });
-    setShowModal(true);
-  };
-
-  const onSubmitCreate = async (data) => {
+  const onSubmitCloseOrder = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onCreateData(`/create/type/${user._id}`, data);
+    const res = await onUpdateData(
+      `/close/commande/${data._id}/${user._id}`,
+      token
+    );
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
     Alert.success(res.message, 3000);
     setState({ ...state, loading: false, success: res.message });
-    setShowModal(false);
     setRunEffect(true);
-  };
-
-  const onSubmitUpdate = async () => {
-    alert('Comming Soon !');
   };
 
   useEffect(() => {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/commande/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/ets/${user._id}?limit=${limit}&page=${page}`,
+        token
       );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
       }
-      setAllType(res && res.data);
+      setAllEts(res && res.data);
       setPaginate({
         ...paginate,
         total: res.total,
@@ -120,7 +84,49 @@ export default function Type() {
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit, runEffect, page]);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      setState({ ...state, loading: true });
+      const res = await onGetData(
+        `/read/all/livreur/${user._id}?limit=${limit}&page=${page}`,
+        token
+      );
+      if (res && res.error) {
+        return setState({ ...state, loading: false, error: res.error });
+      }
+      setAllUser(res && res.data);
+      setPaginate({
+        ...paginate,
+        total: res.total,
+        page: res.page,
+      });
+      setState({ ...state, loading: false });
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      setState({ ...state, loading: true });
+      const res = await onGetData(
+        `/read/all/commande/${user._id}?limit=${limit}&page=${page}&etat=${
+          filters.status || ''
+        }&ets=${filters.ets || ''}&livreur=${filters.livreur || ''}`,
+        token
+      );
+      if (res && res.error) {
+        return setState({ ...state, loading: false, error: res.error });
+      }
+      setAllOrder(res && res.data);
+      setPaginate({
+        ...paginate,
+        total: res.total,
+        page: res.page,
+      });
+      setState({ ...state, loading: false });
+    })();
+  }, [limit, runEffect, page, filters.ets, filters.livreur, filters.status]);
 
   return (
     <Layout>
@@ -132,22 +138,16 @@ export default function Type() {
       />
 
       <section className='main-content'>
-        <OrderModal
-          title={title}
-          data={type}
-          showModal={showModal}
-          state={state}
-          closeModal={closeModal}
-          btnStatus={image ? true : false}
-          handleChange={handleChange}
-          handleImageChange={handleImageChange}
-          onSubmit={() =>
-            update ? onSubmitUpdate(formData) : onSubmitCreate(formData)
-          }
-        />
         <div className='card'>
+          <Filters
+            onChange={handelFilterChange}
+            data={allEts}
+            data2={allUser.map((x) => {
+              return { label: `${x.firstName} ${x.lastName}`, value: x._id };
+            })}
+          />
           <PaginationTable
-            data={allType}
+            data={allOrder}
             total={total}
             page={page}
             pages={pages}
@@ -155,7 +155,7 @@ export default function Type() {
             loading={loading}
             handleChangePage={handleChangePage}
             handleChangeLength={handleChangeLength}
-            handleAction={handleEdit}
+            handleAction={onSubmitCloseOrder}
           />
         </div>
       </section>

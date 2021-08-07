@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { signout } from '../../api/auth';
 import { withRouter } from 'react-router-dom';
 import { isAuthenticated } from '../../api/auth';
 import { API } from '../../config';
+import { GetConfigContext } from '../../ConfigContext';
 import { onGetData } from '../../api';
 
 const TopBar = ({ history, window }) => {
-  const { user } = isAuthenticated();
+  const { user, token } = isAuthenticated();
+  const configContext = useContext(GetConfigContext);
+
   const [userData, setUserData] = useState({
     firstName: '',
     lastName: '',
@@ -15,31 +18,16 @@ const TopBar = ({ history, window }) => {
     avatar: '',
   });
 
-  const init = async () => {
-    const { firstName, lastName, role, avatar } = user;
-    setUserData({ firstName, lastName, role, avatar });
-  };
-
-  const [config, setConfig] = useState({
-    logo: 'icon.png',
-    icon: 'icon.png',
-  });
-
-  const { logo, icon } = config;
+  const { logo, icon } = configContext;
+  const { firstName, lastName, role, avatar } = userData;
 
   useEffect(() => {
-    init();
     (async function () {
-      const res = await onGetData(`/read/config/${user._id}`);
-      setConfig({
-        ...config,
-        logo: res.logo,
-        icon: res.icon,
-      });
+      const data = await onGetData(`/user/${user._id}`, token);
+      const { firstName, lastName, role, avatar } = data;
+      setUserData({ firstName, lastName, role, avatar });
     })();
   }, []);
-
-  const { firstName, lastName, role, avatar } = userData;
 
   return (
     <div className='top-bar primary-top-bar'>

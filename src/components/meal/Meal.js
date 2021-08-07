@@ -5,22 +5,15 @@ import { useState, useEffect } from 'react';
 import PaginationTable from './DataTable';
 import MealModal from './MealModal';
 import { isAuthenticated } from '../../api/auth';
-import { onCreateData, onGetData } from '../../api';
+import { onCreateData, onGetData, onUpdateData } from '../../api';
 import { API } from '../../config';
-import {
-  Alert,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  Input,
-  Loader,
-} from 'rsuite';
+import { Alert, Notification } from 'rsuite';
+
+import Filters from './Filters';
 
 export default function Meal() {
   const [showModal, setShowModal] = useState(false);
-  const [showCatModal, setShowCatModal] = useState(false);
-  const { user } = isAuthenticated();
+  const { user, token } = isAuthenticated();
 
   const [type, setType] = useState({
     title: '',
@@ -29,6 +22,7 @@ export default function Meal() {
     image: '',
     ets: '',
     menu: '',
+    _id: '',
     link: '',
     formData: new FormData(),
     update: false,
@@ -48,13 +42,21 @@ export default function Meal() {
     loading: false,
   });
 
+  const [filters, setFilters] = useState({
+    status: '',
+    ets: '',
+    menu: '',
+    name: '',
+    promo: '',
+  });
+
   const [runEffect, setRunEffect] = useState(false);
 
   const [current, setcurrent] = useState(0);
 
   const { loading } = state;
   const { total, page, pages, limit } = paginate;
-  const { title, image, update, ets, menu, formData } = type;
+  const { title, image, update, ets, formData, _id } = type;
 
   function openModal(title) {
     setType({ ...type, title });
@@ -64,8 +66,26 @@ export default function Meal() {
   function closeModal() {
     setState({ ...state, loading: false, error: '' });
     setShowModal(false);
-    setType({ ...type, title: '', nom: '', description: '', image: '' });
+    setType({
+      ...type,
+      nom: '',
+      titre: '',
+      description: '',
+      category: '',
+      ets: '',
+      menu: '',
+      image: '',
+      link: '',
+      formData: new FormData(),
+    });
   }
+
+  const handelFilterChange = (props) => (value) => {
+    setFilters({
+      ...filters,
+      [props]: value,
+    });
+  };
 
   const handleChange = (value, name) => {
     setState({ ...state, loading: false, error: '' });
@@ -80,7 +100,7 @@ export default function Meal() {
       ...type,
       image: value[0] && value[0].blobFile,
     });
-    type.formData.append('image', value[0] && value[0].blobFile);
+    type.formData.set('image', value[0] && value[0].blobFile);
   };
 
   const handleChangePage = (data) => {
@@ -94,12 +114,18 @@ export default function Meal() {
 
   const handleEdit = (data) => {
     setState({ ...state, loading: false, error: '' });
-    const { nom, description } = data;
+    const { nom, description, image, prix, delais, ets, menu, _id } = data;
     setType({
       ...type,
       title: `Update ${nom}'s informations`,
       nom,
       description,
+      image,
+      prix,
+      delais,
+      ets,
+      _id,
+      menu,
       update: true,
     });
     setShowModal(true);
@@ -113,9 +139,15 @@ export default function Meal() {
 
   const onPromo = async (id) => {
     setState({ ...state, loading: true });
-    const res = await onGetData(`/promo/plat/${user._id}?_id=${id._id}`);
+    const res = await onGetData(`/promo/plat/${user._id}?_id=${id._id}`, token);
 
     if (res && res.error) {
+      Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description:
+          'Done. The realization of this operation was completely successful ',
+      });
       return setState({
         ...state,
         loading: false,
@@ -130,11 +162,17 @@ export default function Meal() {
   const onDisableUnable = async (id) => {
     setState({ ...state, loading: true });
     const res = await onGetData(
-      `/disableUnable/plat/${user._id}?_id=${id._id}`
+      `/disableUnable/plat/${user._id}?_id=${id._id}`,
+      token
     );
 
     if (res && res.error) {
-      Alert.error(res.error, 3000);
+      Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description:
+          'Done. The realization of this operation was completely successful ',
+      });
       return setState({
         ...state,
         loading: false,
@@ -148,11 +186,18 @@ export default function Meal() {
 
   const onSubmitCreate = async (data) => {
     setState({ ...state, loading: true });
-    const res = await onCreateData(`/create/plat/${user._id}`, data);
+    const res = await onCreateData(`/create/plat/${user._id}`, data, token);
     if (res && res.error) {
       return setState({ ...state, error: res.error, loading: false });
     }
-    Alert.success(res.message, 3000);
+
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Done. The realization of this operation was completely successful ',
+    });
+
     setState({ ...state, loading: false, success: res.message });
     setType({
       ...type,
@@ -178,15 +223,50 @@ export default function Meal() {
     setRunEffect(!runEffect);
   };
 
-  const onSubmitUpdate = async () => {
-    alert('Comming Soon !');
+  const onSubmitUpdate = async (data) => {
+    setState({ ...state, loading: true });
+    const res = await onUpdateData(
+      `/update/plat/${user._id}?_id=${_id}`,
+      data,
+      token
+    );
+    if (res && res.error) {
+      return setState({ ...state, error: res.error, loading: false });
+    }
+
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Done. The realization of this operation was completely successful ',
+    });
+
+    setState({ ...state, loading: false, success: res.message });
+    setType({
+      ...type,
+      nom: '',
+      titre: '',
+      description: '',
+      category: '',
+      ets: '',
+      image: '',
+      link: `${API}/api/add/images/plat/${user._id}?_id=${_id}`,
+      formData: new FormData(),
+    });
+    setcurrent(current + 1);
+    setRunEffect(!runEffect);
   };
 
   useEffect(() => {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/plat/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/plat/${user._id}?limit=${limit}&page=${page}&nom=${
+          filters.name
+        }&disable=${filters.status || ''}&promo=${filters.promo || ''}&ets=${
+          filters.ets || ''
+        }&menu=${filters.menu || ''}`,
+        token
       );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
@@ -199,29 +279,44 @@ export default function Meal() {
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit, runEffect, page]);
+  }, [
+    limit,
+    runEffect,
+    page,
+    filters.name,
+    filters.ets,
+    filters.menu,
+    filters.status,
+    filters.promo,
+  ]);
 
   useEffect(() => {
     (async () => {
       setState({ ...state, loading: true });
-      const res = await onGetData(
-        `/read/all/menu/${user._id}?disable=false&ets=${ets || ''}`
-      );
-      const res2 = await onGetData(`/read/all/ets/${user._id}?disable=false`);
+      if (!update) {
+        const res = await onGetData(
+          `/read/all/menu/${user._id}?disable=false&ets=${ets || ''}`,
+          token
+        );
+        const res2 = await onGetData(
+          `/read/all/ets/${user._id}?disable=false`,
+          token
+        );
 
-      if (res && res.error) {
+        if (res && res.error) {
+          setType({ ...type, menu: '' });
+          setAllMenu([]);
+          return setState({
+            ...state,
+            loading: false,
+            error: res.error,
+          });
+        }
+
+        setAllMenu(res.data);
+        setAllEts(res2.data);
         setType({ ...type, menu: '' });
-        setAllMenu([]);
-        return setState({
-          ...state,
-          loading: false,
-          error: res.error,
-        });
       }
-
-      setAllMenu(res.data);
-      setAllEts(res2.data);
-      setType({ ...type, menu: '' });
 
       setState({ ...state, loading: false });
     })();
@@ -262,6 +357,11 @@ export default function Meal() {
           }
         />
         <div className='card'>
+          <Filters
+            onChange={handelFilterChange}
+            data={allEts}
+            data2={allMenu}
+          />
           <PaginationTable
             data={allType}
             total={total}

@@ -1,11 +1,11 @@
 import 'rsuite/dist/styles/rsuite-default.css';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { authenticate, isAuthenticated, signin } from '../../api/auth';
 
 import { API } from '../../config';
 import { Redirect } from 'react-router-dom';
-import { getLogo, userData } from '../../api/shop';
+import { GetConfigContext } from '../../ConfigContext';
 
 const Login = () => {
   const [state, setState] = useState({
@@ -16,7 +16,9 @@ const Login = () => {
     redirect: false,
   });
 
-  const [logo, setLogo] = useState('');
+  const configContext = useContext(GetConfigContext);
+
+  const { logo } = configContext;
 
   const onCancel = () => {
     setState({ ...state, error: '', email: '', password: '', loader: false });
@@ -36,9 +38,6 @@ const Login = () => {
       setState({ ...state, error: data.error, redirect: false, loader: false });
     } else {
       authenticate(data, () => {
-        const { firstName, lastName, email, role, avatar, password } =
-          data.user;
-        userData({ firstName, lastName, email, role, avatar, password });
         setState({ ...state, loader: false, redirect: true });
       });
     }
@@ -52,13 +51,6 @@ const Login = () => {
       return <Redirect to='/' />;
     }
   };
-
-  useEffect(() => {
-    (async function () {
-      const data = await getLogo();
-      setLogo(data.logo);
-    })();
-  }, []);
 
   return (
     <div
@@ -107,8 +99,7 @@ const Login = () => {
               <div className='text-center m-4'>
                 <img
                   alt='icon'
-                  // src={`${API}/${logo}`}
-                  src='/assets/img/logo.png'
+                  src={`${API}/${logo}`}
                   className='img-fluid p-4'
                 />
               </div>

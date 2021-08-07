@@ -4,12 +4,15 @@ import App from './App';
 import 'rsuite/dist/styles/rsuite-default.css';
 import 'bootstrap/dist/js/bootstrap';
 import './index.css';
+import ConfigContext from './ConfigContext';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ConfigContext>
+      <App />
+    </ConfigContext>
   </React.StrictMode>,
   document.getElementById('root')
 );

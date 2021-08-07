@@ -73,9 +73,6 @@ export default function PaginationTable({
   return (
     <div>
       {show && disableModal(state)}
-      <Panel header='Filters' collapsible>
-        <PlaceholderParagraph />
-      </Panel>
       <Table height={370} data={data} rowHeight={60} loading={loading}>
         <Table.Column width={150} align='center'>
           <Table.HeaderCell>Image</Table.HeaderCell>

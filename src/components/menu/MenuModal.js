@@ -13,6 +13,8 @@ import {
   Uploader,
 } from 'rsuite';
 
+import { API } from '../../config';
+
 export default function MenuModal({
   title,
   data,
@@ -25,7 +27,6 @@ export default function MenuModal({
   handleSelectChange,
   onSubmit,
   etsData,
-  catData,
 }) {
   return (
     <Modal size={'xs'} show={showModal} onHide={closeModal}>
@@ -64,24 +65,12 @@ export default function MenuModal({
           </FormGroup>
           <FormGroup>
             <ControlLabel>
-              Category <code>*</code>
-            </ControlLabel>
-            <InputPicker
-              data={catData}
-              name='category'
-              defaultValue={'Select category'}
-              onChange={handleSelectChange('category')}
-              block
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>
               Establishment <code>*</code>
             </ControlLabel>
             <InputPicker
               data={etsData}
               name='ets'
-              defaultValue={'Select Establishment'}
+              placeholder={data.ets ? data.ets.nom : 'Select Establishment'}
               onChange={handleSelectChange('ets')}
               block
             />
@@ -93,9 +82,10 @@ export default function MenuModal({
           listType='picture'
           disabled={btnStatus}
           autoUpload={false}
+          defaultFileList={btnStatus ? [{ url: `${API}/${data.image}` }] : []}
           onChange={handleImageChange}
         >
-          <button>
+          <button style={{ display: btnStatus && 'none' }}>
             <Icon icon='camera-retro' size='lg' />
           </button>
         </Uploader>
