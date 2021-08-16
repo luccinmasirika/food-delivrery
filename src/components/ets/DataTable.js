@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { API } from '../../config';
 import TablePagination from 'rsuite/lib/Table/TablePagination';
 import dayjs from 'dayjs';
-import {
-  Button,
-  Icon,
-  Modal,
-  Table,
-} from 'rsuite';
+import { Button, Icon, Modal, Table } from 'rsuite';
 
 export default function PaginationTable({
   data,
@@ -19,6 +14,7 @@ export default function PaginationTable({
   displayLength,
   handleAction,
   onDisableUnable,
+  handlePreview,
 }) {
   const [show, setShow] = useState(false);
   const [state, setState] = useState('');
@@ -38,7 +34,7 @@ export default function PaginationTable({
         <Modal backdrop='static' show={show} onHide={close} size='xs'>
           <Modal.Body>
             <Icon
-              icon='times-circle'
+              icon='remind'
               style={{
                 color: '#ffb300',
                 fontSize: 40,
@@ -46,13 +42,13 @@ export default function PaginationTable({
                 float: 'left',
               }}
             />
-            {'  '}
-            Once <span className='badge badge-info badge-pill'>
-              {data.nom}
-            </span>{' '}
-            is disabled, the establishment and all its products will no longer
-            be visible in the application until reactivation. Are you sure you
-            want to proceed?
+            <p>
+              Once{' '}
+              <span className='badge badge-info badge-pill'>{data.nom}</span> is
+              disabled, the establishment and all its products will no longer be
+              visible in the application until reactivation.
+            </p>
+            <p className='mt-2'>Are you sure you want to proceed?</p>
           </Modal.Body>
           <Modal.Footer>
             <Button
@@ -95,21 +91,8 @@ export default function PaginationTable({
         </Table.Column>
 
         <Table.Column width={200} resizable={true}>
-          <Table.HeaderCell>Nom</Table.HeaderCell>
-          <Table.Cell>
-            {(data) => (
-              <>
-                {data.nom}{' '}
-                <span
-                  title='Menu'
-                  style={{ cursor: 'help' }}
-                  className='badge badge-primary badge-pill'
-                >
-                  {data.menu.length}
-                </span>
-              </>
-            )}
-          </Table.Cell>
+          <Table.HeaderCell>Name</Table.HeaderCell>
+          <Table.Cell>{(data) => data.nom}</Table.Cell>
         </Table.Column>
 
         <Table.Column width={150}>
@@ -124,18 +107,14 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200} flexGrow={1}>
-          <Table.HeaderCell>Localisation</Table.HeaderCell>
+        <Table.Column width={200}>
+          <Table.HeaderCell>Type</Table.HeaderCell>
           <Table.Cell>
-            {(data) => (
-              <span>
-                Long: {data.localisation.long}- Lat: {data.localisation.lat}
-              </span>
-            )}
+            {(data) => <span>{data.type && data.type.nom}</span>}
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={100} flexGrow={1}>
+        <Table.Column width={100}>
           <Table.HeaderCell>Status</Table.HeaderCell>
           <Table.Cell>
             {(data) => (
@@ -153,25 +132,29 @@ export default function PaginationTable({
         </Table.Column>
 
         <Table.Column width={200}>
-          <Table.HeaderCell>Date</Table.HeaderCell>
+          <Table.HeaderCell>Localisation</Table.HeaderCell>
           <Table.Cell>
-            {(data) => dayjs(data.updatedAt).format('DD MMMM YYYY - HH:mm')}
+            {(data) => (
+              <span>
+                Long: {data.localisation.long}- Lat: {data.localisation.lat}
+              </span>
+            )}
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={200} flexGrow={1}>
-          <Table.HeaderCell>Type</Table.HeaderCell>
-          <Table.Cell>
-            {(data) => <span>{data.type && data.type.nom}</span>}
-          </Table.Cell>
-        </Table.Column>
-
-        <Table.Column width={300} flexGrow={1}>
+        <Table.Column width={300}>
           <Table.HeaderCell>Description</Table.HeaderCell>
           <Table.Cell dataKey='description' />
         </Table.Column>
 
-        <Table.Column width={220} align='center' fixed='right'>
+        <Table.Column width={200}>
+          <Table.HeaderCell>Last updated date</Table.HeaderCell>
+          <Table.Cell>
+            {(data) => dayjs(data.updatedAt).format('dddd, DD MMMM YYYY - HH:mm')}
+          </Table.Cell>
+        </Table.Column>
+
+        <Table.Column width={180} align='center' fixed='right'>
           <Table.HeaderCell>Action</Table.HeaderCell>
 
           <Table.Cell>
@@ -181,22 +164,31 @@ export default function PaginationTable({
                   <button
                     onClick={() => handleAction(data)}
                     title='Edit'
-                    class='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
+                    className='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
                   >
-                    <i class='fa fa-edit'></i>
+                    <i className='fa fa-edit'></i>
                   </button>
                   <button
                     title={data.disable ? 'Activate' : 'Disable'}
                     onClick={() =>
                       data.disable ? onDisableUnable(data) : onDisable(data)
                     }
-                    class={`btn ${
+                    className={`btn ${
                       !data.disable ? 'btn-danger' : 'btn-info'
                     } btn-sm btn-border box-shadow btn-circle m-1`}
                   >
                     <i
-                      class={`fa ${!data.disable ? 'fa-times' : 'fa-check'}`}
+                      className={`fa ${
+                        !data.disable ? 'fa-times' : 'fa-check'
+                      }`}
                     ></i>
+                  </button>
+                  <button
+                    onClick={() => handlePreview(data)}
+                    title='Preview'
+                    className='btn btn-info btn-sm btn-border box-shadow btn-circle m-1'
+                  >
+                    <i className='fa fa-eye'></i>
                   </button>
                 </>
               );

@@ -19,23 +19,31 @@ export default function PaginationTable({
   handleAction,
   onPromo,
   onDisableUnable,
+  handlePreview,
 }) {
-  const [show, setShow] = useState(false);
+  const [showDisable, setShowDisable] = useState(false);
+  const [showPromote, setShowPromote] = useState(false);
   const [state, setState] = useState('');
 
   const onDisable = (data) => {
     setState(data);
-    setShow(true);
+    setShowDisable(true);
+  };
+
+  const onPromote = (data) => {
+    setState(data);
+    setShowPromote(true);
   };
 
   const close = () => {
-    setShow(false);
+    setShowDisable(false);
+    setShowPromote(false);
   };
 
   const disableModal = (data) => {
     return (
       <div className='modal-container'>
-        <Modal backdrop='static' show={show} onHide={close} size='xs'>
+        <Modal backdrop='static' show={showDisable} onHide={close} size='xs'>
           <Modal.Body>
             <Icon
               icon='remind'
@@ -47,18 +55,19 @@ export default function PaginationTable({
               }}
             />
             {'  '}
-            Once <span className='badge badge-info badge-pill'>
-              {data.nom}
-            </span>{' '}
-            is disabled, the manu and all its products will no longer be visible
-            in the application until reactivation. Are you sure you want to
-            proceed?
+            <p>
+              Once{' '}
+              <span className='badge badge-info badge-pill'>{data.nom}</span> is
+              disabled, the establishment and all its products will no longer be
+              visible in the application until reactivation.
+            </p>
+            <p className='mt-2'>Are you sure you want to proceed?</p>
           </Modal.Body>
           <Modal.Footer>
             <Button
               onClick={() => {
                 onDisableUnable(data);
-                setShow(false);
+                setShowDisable(false);
               }}
               color='red'
             >
@@ -73,9 +82,50 @@ export default function PaginationTable({
     );
   };
 
+  const promoteModal = (data) => {
+    return (
+      <div className='modal-container'>
+        <Modal backdrop='static' show={showPromote} onHide={close} size='xs'>
+          <Modal.Body>
+            <Icon
+              icon='remind'
+              style={{
+                color: '#ffb300',
+                fontSize: 40,
+                paddingRight: 10,
+                float: 'left',
+              }}
+            />
+            {'  '}
+            <p>
+              You are about to promote the product{' '}
+              <span className='badge badge-info badge-pill'>{data.nom}</span>
+            </p>
+            <p className='mt-2'>Are you sure you want to proceed?</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              onClick={() => {
+                onPromo(data);
+                setShowPromote(false);
+              }}
+              appearance='primary'
+            >
+              Promote
+            </Button>
+            <Button onClick={close} appearance='subtle'>
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    );
+  };
+
   return (
     <div>
-      {show && disableModal(state)}
+      {showDisable && disableModal(state)}
+      {showPromote && promoteModal(state)}
       <Table height={370} data={data} rowHeight={60} loading={loading}>
         <Table.Column width={150} align='center' fixed={!isMobile && 'left'}>
           <Table.HeaderCell>Image</Table.HeaderCell>
@@ -161,7 +211,7 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={180} align='center' fixed='right'>
+        <Table.Column width={240} align='center' fixed='right'>
           <Table.HeaderCell>Action</Table.HeaderCell>
 
           <Table.Cell>
@@ -170,32 +220,43 @@ export default function PaginationTable({
                 <>
                   <button
                     onClick={() => handleAction(data)}
-                    class='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
+                    className='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
                     title='Edit meal'
                   >
-                    <i class='fa fa-edit'></i>
+                    <i className='fa fa-edit'></i>
                   </button>
                   <button
                     title={data.disable ? 'Activate' : 'Disable'}
                     onClick={() =>
                       data.disable ? onDisableUnable(data) : onDisable(data)
                     }
-                    class={`btn ${
+                    className={`btn ${
                       !data.disable ? 'btn-danger' : 'btn-info'
                     } btn-sm btn-border box-shadow btn-circle m-1`}
                   >
                     <i
-                      class={`fa ${!data.disable ? 'fa-times' : 'fa-check'}`}
+                      className={`fa ${
+                        !data.disable ? 'fa-times' : 'fa-check'
+                      }`}
                     ></i>
                   </button>
                   <button
-                    onClick={() => onPromo(data)}
+                    onClick={() =>
+                      data.promo ? onPromo(data) : onPromote(data)
+                    }
                     title={data.promo ? 'Unpromote' : 'Promote'}
-                    class={`btn ${
+                    className={`btn ${
                       !data.promo ? 'bg-light' : 'btn-warning'
                     } btn-sm btn-border box-shadow btn-circle m-1`}
                   >
-                    <i class='fa fa-star'></i>
+                    <i className='fa fa-star'></i>
+                  </button>
+                  <button
+                    onClick={() => handlePreview(data)}
+                    title='Preview'
+                    className='btn btn-info btn-sm btn-border box-shadow btn-circle m-1'
+                  >
+                    <i className='fa fa-eye'></i>
                   </button>
                 </>
               );

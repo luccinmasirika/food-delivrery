@@ -13,10 +13,11 @@ export default function PaginationTable({
   handleChangeLength,
   displayLength,
   handleAction,
+  handlePreview,
 }) {
   return (
     <div>
-      <Table height={370} data={data} rowHeight={60} loading={loading}>
+      <Table height={460} data={data} rowHeight={60} loading={loading}>
         <Table.Column width={150} align='center'>
           <Table.HeaderCell>Image</Table.HeaderCell>
           <Table.Cell className='cell-image'>
@@ -36,20 +37,7 @@ export default function PaginationTable({
 
         <Table.Column width={250} resizable={true}>
           <Table.HeaderCell>Nom</Table.HeaderCell>
-          <Table.Cell>
-            {(data) => (
-              <>
-                {data.nom}{' '}
-                <span
-                  title='Establishment'
-                  style={{ cursor: 'help' }}
-                  className='badge badge-primary badge-pill'
-                >
-                  {data.ets.length}
-                </span>
-              </>
-            )}
-          </Table.Cell>
+          <Table.Cell>{(data) => data.nom}</Table.Cell>
         </Table.Column>
 
         <Table.Column width={300} flexGrow={1}>
@@ -64,19 +52,28 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={120} fixed='right'>
+        <Table.Column width={120} align='center' fixed='right'>
           <Table.HeaderCell>Action</Table.HeaderCell>
 
           <Table.Cell>
             {(data) => {
               return (
-                <button
-                  onClick={() => handleAction(data)}
-                  title='Edit'
-                  class='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
-                >
-                  <i class='fa fa-edit'></i>
-                </button>
+                <>
+                  <button
+                    onClick={() => handleAction(data)}
+                    title='Edit'
+                    className='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
+                  >
+                    <i className='fa fa-edit'></i>
+                  </button>
+                  <button
+                    onClick={() => handlePreview(data)}
+                    title='Preview'
+                    className='btn btn-info btn-sm btn-border box-shadow btn-circle m-1'
+                  >
+                    <i className='fa fa-eye'></i>
+                  </button>
+                </>
               );
             }}
           </Table.Cell>

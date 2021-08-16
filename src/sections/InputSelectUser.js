@@ -3,7 +3,7 @@ import React from "react";
 const InputSelectUser = ({ value, values, placeholder, action }) => {
   return (
     <div className="form-group">
-      <select onChange={action} class="form-control" value={value}>
+      <select onChange={action} className="form-control" value={value}>
         <option value="">{placeholder}</option>
         {values &&
           values.map((_, i) => (

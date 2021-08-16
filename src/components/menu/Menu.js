@@ -8,9 +8,11 @@ import { isAuthenticated } from '../../api/auth';
 import { onCreateData, onGetData, onUpdateData } from '../../api';
 import Filters from './Filters';
 import { Notification } from 'rsuite';
+import MenuModalPreview from './MenuModalPreview';
 
 export default function Menu() {
   const [showModal, setShowModal] = useState(false);
+  const [showModalPreview, setShowModalPreview] = useState(false);
   const { user, token } = isAuthenticated();
 
   const [menu, setMenu] = useState({
@@ -18,14 +20,11 @@ export default function Menu() {
     nom: '',
     description: '',
     image: '',
-    ets: '',
-    category: '',
     _id: '',
     formData: new FormData(),
     update: false,
   });
-  const [allType, setAllType] = useState([]);
-  const [allEts, setAllEts] = useState([]);
+  const [allMenu, setAllMenu] = useState([]);
   const [paginate, setPaginate] = useState({
     total: 0,
     page: 0,
@@ -66,6 +65,17 @@ export default function Menu() {
       update: false,
       _id: '',
       formData: new FormData(),
+    });
+  }
+
+  function closeModalPreview() {
+    setShowModalPreview(false);
+    setState({ ...state, loading: false, error: '' });
+    setMenu({
+      ...menu,
+      nom: '',
+      description: '',
+      image: '',
     });
   }
 
@@ -116,6 +126,18 @@ export default function Menu() {
       update: true,
     });
     setShowModal(true);
+  };
+
+  const handlePreview = (data) => {
+    setState({ ...state, loading: false, error: '' });
+    const { nom, description, image } = data;
+    setMenu({
+      ...menu,
+      nom,
+      description,
+      image,
+    });
+    setShowModalPreview(true);
   };
 
   const handleSelectChange = (props) => (value) => {
@@ -215,11 +237,11 @@ export default function Menu() {
       const res = await onGetData(
         `/read/all/menu/${user._id}?limit=${limit}&page=${page}&nom=${
           filters.name
-        }&disable=${filters.status || ''}&ets=${filters.ets || ''}`,
+        }&disable=${filters.status || ''}`,
         token
       );
 
-      setAllType(res && res.data);
+      setAllMenu(res && res.data);
       setPaginate({
         ...paginate,
         total: res.total,
@@ -227,19 +249,7 @@ export default function Menu() {
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit, runEffect, page, filters.name, filters.ets, filters.status]);
-
-  useEffect(() => {
-    (async () => {
-      setState({ ...state, loading: true });
-      const res = await onGetData(
-        `/read/all/ets/${user._id}?disable=false`,
-        token
-      );
-      setAllEts(res.data);
-      setState({ ...state, loading: false });
-    })();
-  }, [runEffect]);
+  }, [limit, runEffect, page, filters.name, filters.status]);
 
   return (
     <Layout>
@@ -259,12 +269,6 @@ export default function Menu() {
           showModal={showModal}
           state={state}
           closeModal={closeModal}
-          etsData={
-            allEts &&
-            allEts.map((x) => {
-              return { label: x.nom, value: x._id };
-            })
-          }
           btnStatus={image ? true : false}
           handleChange={handleChange}
           handleImageChange={handleImageChange}
@@ -273,10 +277,16 @@ export default function Menu() {
             update ? onSubmitUpdate(formData) : onSubmitCreate(formData)
           }
         />
+        <MenuModalPreview
+          data={menu}
+          showModal={showModalPreview}
+          state={state}
+          closeModal={closeModalPreview}
+        />
         <div className='card'>
-          <Filters onChange={handelFilterChange} data={allEts} />
+          <Filters onChange={handelFilterChange} />
           <PaginationTable
-            data={allType}
+            data={allMenu}
             total={total}
             page={page}
             pages={pages}
@@ -286,6 +296,7 @@ export default function Menu() {
             handleChangePage={handleChangePage}
             handleChangeLength={handleChangeLength}
             handleAction={handleEdit}
+            handlePreview={handlePreview}
           />
         </div>
       </section>

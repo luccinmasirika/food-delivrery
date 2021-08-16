@@ -2,13 +2,13 @@ import React from 'react';
 import { API } from '../config';
 import { isAuthenticated } from '../api/auth';
 
-const CardClient = ({ data, onDisable, onEdit, onLoad }) => {
+const CardClient = ({ data, onDisable, onLoad }) => {
   const { user } = isAuthenticated();
   const { firstName, lastName, avatar, disable, stat } = data;
 
   return (
     <div className='col-md-4 col-xs-12'>
-      <div class='card'>
+      <div className='card'>
         <div className='card-body text-center'>
           <img
             alt='profile'
@@ -32,9 +32,9 @@ const CardClient = ({ data, onDisable, onEdit, onLoad }) => {
               type='button'
               disabled={onLoad}
               onClick={onDisable}
-              class={`btn btn-${disable ? 'success' : 'danger'} btn-icon`}
+              className={`btn btn-${disable ? 'success' : 'danger'} btn-icon`}
             >
-              <i class={`fa ${disable ? 'fa-check-circle' : 'fa-times'}`}></i>
+              <i className={`fa ${disable ? 'fa-check-circle' : 'fa-times'}`}></i>
               {disable ? 'Active' : 'Disable'}
             </button>
           )}

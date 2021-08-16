@@ -2,7 +2,13 @@ import { InputPicker, Panel } from 'rsuite';
 
 export default function Filters(props) {
   return (
-    <Panel className='m-2' header='Filters' collapsible bordered>
+    <Panel
+      className='m-2'
+      header='Filters'
+      collapsible
+      bordered
+      defaultExpanded
+    >
       <div className='row'>
         <div className='col-md-3'>
           <InputPicker
@@ -43,7 +49,7 @@ export default function Filters(props) {
         </div>
         <div className='col-md-3'>
           <InputPicker
-            data={props.data}
+            data={props.data3}
             labelKey='nom'
             valueKey='_id'
             placeholder='Filter by type'

@@ -18,28 +18,22 @@ export default function PaginationTable({
     switch (data) {
       case 'PENDING_FOR_VALIDATION':
         return (
-          <span className='badge badge-primary badge-pill'>
-            PENDING FOR VALIDATION
-          </span>
+          <span className='badge badge-primary'>PENDING FOR VALIDATION</span>
         );
       case 'VALIDATED':
-        return (
-          <span className='badge badge-success badge-pill'>VALIDATED</span>
-        );
+        return <span className='badge badge-success'>VALIDATED</span>;
       case 'DENIED':
-        return <span className='badge badge-danger badge-pill'>DENIED</span>;
+        return <span className='badge badge-teal'>DENIED</span>;
       case 'PENDING_FOR_PAYMENT':
         return (
-          <span className='badge badge-warning badge-pill'>
-            PENDING FOR PAYMENT
-          </span>
+          <span className='badge badge-warning '>PENDING FOR PAYMENT</span>
         );
       case 'PAYIED':
-        return <span className='badge badge-info badge-pill'>PAYIED</span>;
+        return <span className='badge badge-info '>PAYIED</span>;
       case 'CANCELED':
-        return <span className='badge badge-teal badge-pill'>CANCELED</span>;
+        return <span className='badge badge-danger '>CANCELED</span>;
       case 'CLOSED':
-        return <span className='badge badge-indigo badge-pill'>CLOSED</span>;
+        return <span className='badge badge-indigo '>CLOSED</span>;
       default:
         break;
     }
@@ -57,7 +51,7 @@ export default function PaginationTable({
           <Table.HeaderCell>Reference</Table.HeaderCell>
           <Table.Cell>
             {(data) => (
-              <span className='badge badge-primary badge-pill'>
+              <span className='badge badge-indigo badge-pill'>
                 {data.reference}
               </span>
             )}
@@ -131,10 +125,10 @@ export default function PaginationTable({
                 <button
                   disabled={data.etat !== 'PAYIED'}
                   onClick={() => handleAction(data)}
-                  class='btn btn-indigo  btn-border btn-rounded btn-sm'
+                  className='btn btn-indigo  btn-border btn-rounded btn-sm'
                 >
                   <i
-                    class={`fa ${
+                    className={`fa ${
                       data.etat === 'CLOSED' || data.etat === 'CANCELED'
                         ? 'fa-check-circle'
                         : data.etat !== 'PAYIED'

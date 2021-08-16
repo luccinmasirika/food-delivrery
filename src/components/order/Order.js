@@ -18,6 +18,7 @@ export default function Order() {
     name: '',
   });
   const [allEts, setAllEts] = useState([]);
+  const [allType, setAllType] = useState([]);
   const [allUser, setAllUser] = useState([]);
   const [allOrder, setAllOrder] = useState([]);
   const [paginate, setPaginate] = useState({
@@ -110,6 +111,26 @@ export default function Order() {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
+        `/read/all/type/${user._id}?limit=${limit}&page=${page}`,
+        token
+      );
+      if (res && res.error) {
+        return setState({ ...state, loading: false, error: res.error });
+      }
+      setAllType(res && res.data);
+      setPaginate({
+        ...paginate,
+        total: res.total,
+        page: res.page,
+      });
+      setState({ ...state, loading: false });
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      setState({ ...state, loading: true });
+      const res = await onGetData(
         `/read/all/commande/${user._id}?limit=${limit}&page=${page}&etat=${
           filters.status || ''
         }&ets=${filters.ets || ''}&livreur=${filters.livreur || ''}`,
@@ -145,6 +166,7 @@ export default function Order() {
             data2={allUser.map((x) => {
               return { label: `${x.firstName} ${x.lastName}`, value: x._id };
             })}
+            data3={allType}
           />
           <PaginationTable
             data={allOrder}

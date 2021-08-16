@@ -7,10 +7,11 @@ import TypeModal from './TypeModal';
 import { isAuthenticated } from '../../api/auth';
 import { onCreateData, onGetData, onUpdateData } from '../../api';
 import { Alert, Notification } from 'rsuite';
-import PlaceholderParagraph from 'rsuite/lib/Placeholder/PlaceholderParagraph';
+import TypeModalPreview from './TypeModalPreview';
 
 export default function Type() {
   const [showModal, setShowModal] = useState(false);
+  const [showModalPreview, setShowModalPreview] = useState(false);
   const { user, token } = isAuthenticated();
 
   const [type, setType] = useState({
@@ -59,6 +60,18 @@ export default function Type() {
     });
   }
 
+  function closeModalPreview() {
+    setShowModalPreview(false);
+    setState({ ...state, loading: false, error: '' });
+    setType({
+      ...type,
+      title: '',
+      nom: '',
+      description: '',
+      image: '',
+    });
+  }
+
   const handleChange = (value, name) => {
     setState({ ...state, loading: false, error: '' });
     const { nom, description } = value;
@@ -97,6 +110,21 @@ export default function Type() {
       update: true,
     });
     setShowModal(true);
+  };
+
+  const handlePreview = (data) => {
+    setState({ ...state, loading: false, error: '' });
+    const { nom, description, _id, image } = data;
+    setType({
+      ...type,
+      title: `Update ${nom}'s informations`,
+      nom,
+      description,
+      _id,
+      image,
+      update: true,
+    });
+    setShowModalPreview(true);
   };
 
   const onSubmitCreate = async (data) => {
@@ -183,6 +211,13 @@ export default function Type() {
             update ? onSubmitUpdate(formData) : onSubmitCreate(formData)
           }
         />
+        <TypeModalPreview
+          title={title}
+          data={type}
+          showModal={showModalPreview}
+          state={state}
+          closeModal={closeModalPreview}
+        />
         <div className='card'>
           <PaginationTable
             data={allType}
@@ -194,6 +229,7 @@ export default function Type() {
             handleChangePage={handleChangePage}
             handleChangeLength={handleChangeLength}
             handleAction={handleEdit}
+            handlePreview={handlePreview}
           />
         </div>
       </section>

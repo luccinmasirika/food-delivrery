@@ -8,6 +8,7 @@ import PaginationTable from './DataTable';
 import Footer from '../footer/Footer';
 import Filters from './Filters';
 import { Notification } from 'rsuite';
+import EtsModalPreview from './EtsModalPreview';
 
 export default function Ets() {
   const [showModal, setShowModal] = useState(false);
@@ -29,6 +30,7 @@ export default function Ets() {
   });
   const [allEts, setAllEts] = useState([]);
   const [allType, setAllType] = useState([]);
+  const [showModalPreview, setShowModalPreview] = useState(false);
   const [paginate, setPaginate] = useState({
     total: 0,
     page: 0,
@@ -70,6 +72,22 @@ export default function Ets() {
       type: '',
       image: '',
       formData: new FormData(),
+    });
+  }
+
+  function closeModalPreview() {
+    setShowModalPreview(false);
+    setState({ ...state, loading: false, error: '' });
+    setEts({
+      nom: '',
+      title: '',
+      long: '',
+      lat: '',
+      ouverture: '',
+      fermeture: '',
+      description: '',
+      type: '',
+      image: '',
     });
   }
 
@@ -135,6 +153,27 @@ export default function Ets() {
     });
 
     setShowModal(true);
+  };
+
+  const handlePreview = (data) => {
+    setState({ ...state, loading: false, error: '' });
+    const { nom, description, _id, type, image, localisation, heure, etat } =
+      data;
+    setEts({
+      ...ets,
+      nom,
+      description,
+      type,
+      image,
+      etat,
+      ouverture: heure.ouverture,
+      fermeture: heure.fermeture,
+      long: localisation.long,
+      lat: localisation.lat,
+      _id,
+    });
+
+    setShowModalPreview(true);
   };
 
   const onDisableUnable = async (id) => {
@@ -294,7 +333,12 @@ export default function Ets() {
             update ? onSubmitUpdate(formData) : onSubmitCreate(formData)
           }
         />
-
+        <EtsModalPreview
+          data={ets}
+          showModal={showModalPreview}
+          state={state}
+          closeModal={closeModalPreview}
+        />
         <div className='card'>
           <Filters onChange={handelFilterChange} data={allType} />
           <PaginationTable
@@ -311,6 +355,7 @@ export default function Ets() {
             onDisableUnable={onDisableUnable}
             handleChangeLength={handleChangeLength}
             handleAction={handleEdit}
+            handlePreview={handlePreview}
           />
         </div>
       </section>

@@ -28,13 +28,14 @@ export default function MealModal({
   handleChange,
   handleImageChange,
   handleSelectChange,
+  onRemoveOthersImages,
   onSubmit,
   etsData,
   menuData,
   current,
   onFinish,
 }) {
-  
+  const [isLoad, setIsLoad] = useState(false);
   return (
     <Modal size={'xs'} show={showModal} onHide={closeModal}>
       {state.loading && (
@@ -87,7 +88,9 @@ export default function MealModal({
                   name='ets'
                   value={data.ets}
                   placeholder={
-                    data.ets.nom ? data.ets.nom : 'Select Establishment'
+                    data.ets && data.ets.nom
+                      ? data.ets.nom
+                      : 'Select Establishment'
                   }
                   onChange={handleSelectChange('ets')}
                   block
@@ -105,7 +108,9 @@ export default function MealModal({
                       name='menu'
                       value={data.menu}
                       placeholder={
-                        data.menu.nom ? data.menu.nom : 'Select Menu'
+                        data.menu && data.menu.nom
+                          ? data.menu.nom
+                          : 'Select Menu'
                       }
                       onChange={handleSelectChange('menu')}
                       block
@@ -165,6 +170,12 @@ export default function MealModal({
               listType='picture'
               draggable
               multiple
+              onRemove={(data) => onRemoveOthersImages(data)}
+              defaultFileList={data.autresImages.map((el) => {
+                return { url: `${API}/${el}` };
+              })}
+              onUpload={() => setIsLoad(true)}
+              onSuccess={() => setIsLoad(false)}
               action={data.link}
             >
               <button>
@@ -176,6 +187,7 @@ export default function MealModal({
       </Modal.Body>
       <Modal.Footer>
         <Button
+          disabled={isLoad}
           onClick={current < 1 ? onSubmit : onFinish}
           appearance='primary'
         >

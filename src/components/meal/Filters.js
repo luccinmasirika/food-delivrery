@@ -15,7 +15,13 @@ const CustomInputGroup = ({ placeholder, ...props }) => (
 
 export default function Filters(props) {
   return (
-    <Panel className='m-2' header='Filters' collapsible bordered>
+    <Panel
+      className='m-2'
+      header='Filters'
+      collapsible
+      bordered
+      defaultExpanded
+    >
       <div className='row'>
         <div className='col-md-4'>
           <div className='row'>

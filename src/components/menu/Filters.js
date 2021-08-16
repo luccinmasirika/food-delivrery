@@ -15,9 +15,15 @@ const CustomInputGroup = ({ placeholder, ...props }) => (
 
 export default function Filters(props) {
   return (
-    <Panel className='m-2' header='Filters' collapsible bordered>
+    <Panel
+      className='m-2'
+      header='Filters'
+      collapsible
+      bordered
+      defaultExpanded
+    >
       <div className='row'>
-        <div className='col-md-2'>
+        <div className='col-md-4'>
           <InputPicker
             data={[
               { label: 'Active', value: 'false' },
@@ -28,17 +34,7 @@ export default function Filters(props) {
             block
           />
         </div>
-        <div className='col-md-4'>
-          <InputPicker
-            data={props.data}
-            labelKey='nom'
-            valueKey='_id'
-            placeholder='Filter by establishment'
-            onChange={props.onChange('ets')}
-            block
-          />
-        </div>
-        <div className='col-md-6'>
+        <div className='col-md-8'>
           <CustomInputGroup
             name='search'
             onChange={props.onChange('name')}

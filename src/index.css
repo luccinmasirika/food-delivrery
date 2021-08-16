@@ -164,7 +164,7 @@ button {
   .top-bar.primary-top-bar {
     box-shadow: 0 0 15px 10px #0a111111;
   }
-  .rs-modal-xs {
+  .rs-modal-xs, .rs-modal-md {
     width: auto !important;
   }
 

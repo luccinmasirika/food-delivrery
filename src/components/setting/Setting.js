@@ -8,8 +8,7 @@ import { GetConfigContext, RunEffectContext } from '../../ConfigContext';
 import { API } from '../../config';
 import ConfigModal from './ConfigModal';
 import DeviseModal from './DeviseModal';
-import { onGetData, onUpdateData } from '../../api';
-import { onCreateData } from './../../api/index';
+import { onCreateData, onGetData, onUpdateData } from '../../api';
 import {
   Icon,
   IconButton,
@@ -134,27 +133,36 @@ const Setting = () => {
     });
   };
 
-  // const handelChangeUpdate = (props) => (event) => {
-  //   setState({ ...state, error: '' });
-  //   setUserData({ ...userData, [props]: event.target.value });
-  // };
+  const handelChangeUpdate = (props) => (event) => {
+    setState({ ...state, error: '' });
+    setUserData({ ...userData, [props]: event.target.value });
+  };
 
-  // const onSubmitUpdate = async (id) => {
-  //   const user = { firstName, lastName, email, role, password };
-  //   setState({ error: false, success: false, loader: true });
-  //   const data = await updateUser(id, token, user);
-  //   if (data.error) {
-  //     return setState({ ...state, error: data.error, loader: false });
-  //   }
-  //   init();
-  //   setState({ ...state, loader: false, success: true });
-  // };
+  const onSubmitUpdate = async (id) => {
+    const user = { firstName, lastName, email, role, password };
+    setState({ ...state, error: '', loading: true });
+    const data = await onUpdateData(`/update/profil/user/${id}`, user);
+    if (data.error) {
+      setState({ ...state, loading: false });
+      Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description: data.error,
+      });
+    }
+    setState({ ...state, loader: false, success: true });
+  };
 
   const onSubmitUpdateConfig = async (data) => {
     setState({ ...state, error: '', loading: true });
     const res = await onUpdateData(`/update/config/${user._id}`, data);
     if (res && res.error) {
-      setState({ ...state, loading: false, error: res.error });
+      setState({ ...state, loading: false });
+      Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description: res.error,
+      });
     }
 
     Notification['success']({
@@ -271,8 +279,7 @@ const Setting = () => {
                       alt='Profile'
                       width={140}
                       className='rounded-circle mar-btm margin-b-10 circle-border '
-                      src='/assets/img/avtar-4.png'
-                      // src={`${API}${avatar}`}
+                      src={`${API}/${avatar}`}
                     />
                     <p className='lead font-500 margin-b-0'>
                       {firstName} {lastName}
@@ -283,6 +290,7 @@ const Setting = () => {
                   </div>
                 </div>
                 <div className='col-md-8'>
+                  {loading && <Loader backdrop center style={{ zIndex: 3 }} />}
                   <div className='card-header card-default'>Update profile</div>
                   <div className='card-body'>
                     <form method='post' className='well well-default'>
@@ -290,7 +298,7 @@ const Setting = () => {
                         <div className='col-md-6 col-sm-12'>
                           <Input
                             icon='fa fa-user'
-                            // action={handelChangeUpdate('firstName')}
+                            action={handelChangeUpdate('firstName')}
                             placeholder='Nom'
                             type='text'
                             value={firstName}
@@ -299,7 +307,7 @@ const Setting = () => {
                         <div className='col-md-6 col-sm-12'>
                           <Input
                             icon='fa fa-user'
-                            // action={handelChangeUpdate('lastName')}
+                            action={handelChangeUpdate('lastName')}
                             placeholder='Postnom'
                             type='text'
                             value={lastName}
@@ -310,7 +318,7 @@ const Setting = () => {
                         <div className='col-md-6 col-sm-12'>
                           <Input
                             icon='fa fa-at'
-                            // action={handelChangeUpdate('email')}
+                            action={handelChangeUpdate('email')}
                             placeholder='Email'
                             type='text'
                             value={email}
@@ -319,7 +327,7 @@ const Setting = () => {
                         <div className='col-md-6 col-sm-12'>
                           <Input
                             icon='fa fa-unlock'
-                            // action={handelChangeUpdate('password')}
+                            action={handelChangeUpdate('password')}
                             placeholder='Mot de passe'
                             type='text'
                             value={password}
@@ -327,11 +335,10 @@ const Setting = () => {
                         </div>
                       </div>
 
-                      {/* <InputImage action={handelChangeUpdate('')} /> */}
                       <button
                         type='button'
-                        // onClick={() => onSubmitUpdate(user._id)}
-                        class='btn btn-success btn-icon'
+                        onClick={() => onSubmitUpdate(user._id)}
+                        className='btn btn-success btn-icon'
                       >
                         <i
                           className={`fa ${

@@ -5,7 +5,7 @@ const InputSelect = ({ value,values, placeholder, action }) => {
     <div className='form-group'>
       <select
         onChange={action}
-        class='form-control'
+        className='form-control'
         value={value}
       >
         <option value=''>{placeholder}</option>

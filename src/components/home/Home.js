@@ -1,31 +1,65 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-import CardUsers from "../../sections/CardClient";
-import Footer from "../footer/Footer";
-import Layout from "../Layout";
-import Header from "../navBar/Header";
-import ActionButton from "../../sections/ActionButton";
-import Input from "../../sections/Input";
-import LinearProgress from "@material-ui/core/LinearProgress";
-import { isAuthenticated } from "../../api/auth";
+import Footer from '../footer/Footer';
+import Layout from '../Layout';
+import Header from '../navBar/Header';
+import DataUn from './DataUn';
+import { isAuthenticated } from '../../api/auth';
+import { onGetData } from '../../api';
+import DashboardDeux from './DashboardDeux';
 
 const Home = () => {
+  const { user, token } = isAuthenticated();
+  const [dataStat, setDataStat] = useState({
+    user: 0,
+    ets: 0,
+    commande: 0,
+  });
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const data = await onGetData(`/stats/un/${user._id}`, token);
+      setDataStat({
+        ...dataStat,
+        user: data.user,
+        ets: data.ets,
+        commande: data.commande,
+      });
+      setLoading(false);
+    })();
+  }, []);
   return (
     <Layout>
-      <Header parent='Home' create={false} />
+      <Header
+        parent='Home'
+        content='Dashboard'
+        title='Dashboard'
+        create={false}
+      />
       <section className='main-content'>
-        <div className="card">
         <div className='row'>
-          <div className='col-md-12 p-5'>
-
-            <div className='w-100 d-flex justify-content-center'>
-              <img src='/assets/img/data.svg' width='30%' alt='data' srcset='' />
-            </div>
-          </div>
-          <div className='col-md-8 m-auto p-5 d-flex text-center font-weight-500'>
-            <h5>Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt tempora eum temporibus! Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur, nisi.</h5>
-          </div>
+          <DataUn
+            title='Client'
+            loading={loading}
+            number={dataStat.user}
+            color='success'
+          />
+          <DataUn
+            title='Establishment'
+            loading={loading}
+            number={dataStat.ets}
+            color='warning'
+          />
+          <DataUn
+            title='Order'
+            loading={loading}
+            number={dataStat.commande}
+            color='indigo'
+          />
         </div>
+        <div className='card pt-4 pl-4 pr-4'>
+          <DashboardDeux />
         </div>
         <Footer />
       </section>

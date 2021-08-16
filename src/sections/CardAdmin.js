@@ -3,7 +3,7 @@ import { API } from '../config';
 import { isAuthenticated } from '../api/auth';
 import { getUserStats } from '../api/shop';
 
-const CardClient = ({ data, onDisable, onEdit, onLoad }) => {
+const CardClient = ({ data, onDisable, onLoad }) => {
   const { user, token } = isAuthenticated();
   const { firstName, lastName, role, avatar, disable } = data;
 
@@ -28,27 +28,13 @@ const CardClient = ({ data, onDisable, onEdit, onLoad }) => {
         </p>
 
         <div>
-          <a
-            href='#'
-            data-toggle='modal'
-            data-target={`${disable || '.myModalUpdate'}`}
-            onClick={onEdit}
-            style={{
-              margin: '0 5px',
-              cursor: `${disable ? 'not-allowed' : 'pointer'}`,
-              opacity: `${disable ? 0.5 : 1}`,
-            }}
-            class='btn btn-info btn-icon'
-          >
-            <i class='fa fa-edit '></i>Éditer
-          </a>
           <button
             type='button'
             disabled={onLoad}
             onClick={onDisable}
-            class={`btn btn-${disable ? 'success' : 'danger'} btn-icon`}
+            className={`btn btn-${disable ? 'success' : 'danger'} btn-icon`}
           >
-            <i class={`fa ${disable ? 'fa-check-circle' : 'fa-times'}`}></i>
+            <i className={`fa ${disable ? 'fa-check-circle' : 'fa-times'}`}></i>
             {disable ? 'Active' : 'Disable'}
           </button>
         </div>

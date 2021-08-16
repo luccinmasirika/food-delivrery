@@ -46,7 +46,7 @@ const NavBar = ({ history, window }) => {
       <div className='nano'>
         <div className='nano-content sidebar-nav'>
           <div className='card-body nav-profile'>
-            <img src='/assets/img/icon1.png' alt='' srcset='' width={190} />
+            <img src='/assets/img/icon1.png' alt='' srcSet='' width={190} />
           </div>
           <ul className='metisMenu nav flex-column' id='menu'>
             <li className={`nav-item ${isActive(history, '/')}`}>
@@ -125,7 +125,7 @@ const NavBar = ({ history, window }) => {
                 <span className='toggle-none'>
                   Landing Page
                   <span
-                    class='fa arrow'
+                    className='fa arrow'
                     style={{ transform: 'rotate(180deg)' }}
                   ></span>
                 </span>
@@ -133,7 +133,7 @@ const NavBar = ({ history, window }) => {
             </li>
 
             <ul
-              class='nav-second-level nav flex-column'
+              className='nav-second-level nav flex-column'
               style={{ display: dropDown === 'active' ? 'flex' : 'none' }}
             >
               <li className={`nav-item ${isActive(history, '/banner')}`}>

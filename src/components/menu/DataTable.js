@@ -15,11 +15,12 @@ export default function PaginationTable({
   handleChangeLength,
   displayLength,
   handleAction,
-  onSubmitAnableDisable,
   onDisableUnable,
+  handlePreview,
 }) {
   const [show, setShow] = useState(false);
   const [state, setState] = useState('');
+  const [showModalPreview, setShowModalPreview] = useState(false);
 
   const onDisable = (data) => {
     setState(data);
@@ -45,12 +46,13 @@ export default function PaginationTable({
               }}
             />
             {'  '}
-            Once <span className='badge badge-info badge-pill'>
-              {data.nom}
-            </span>{' '}
-            is disabled, the manu and all its products will no longer be visible
-            in the application until reactivation. Are you sure you want to
-            proceed?
+            <p>
+              Once{' '}
+              <span className='badge badge-info badge-pill'>{data.nom}</span> is
+              disabled, the establishment and all its products will no longer be
+              visible in the application until reactivation.
+            </p>
+            <p className='mt-2'>Are you sure you want to proceed?</p>
           </Modal.Body>
           <Modal.Footer>
             <Button
@@ -93,25 +95,7 @@ export default function PaginationTable({
 
         <Table.Column width={200} resizable={true}>
           <Table.HeaderCell>Nom</Table.HeaderCell>
-          <Table.Cell>
-            {(data) => (
-              <>
-                {data.nom}{' '}
-                <span
-                  title='Meal'
-                  style={{ cursor: 'help' }}
-                  className='badge badge-primary badge-pill'
-                >
-                  {data.plat.length}
-                </span>
-              </>
-            )}
-          </Table.Cell>
-        </Table.Column>
-
-        <Table.Column width={200}>
-          <Table.HeaderCell>Establishment</Table.HeaderCell>
-          <Table.Cell>{(data) => data.ets.nom}</Table.Cell>
+          <Table.Cell>{(data) => data.nom}</Table.Cell>
         </Table.Column>
 
         <Table.Column width={100}>
@@ -143,7 +127,7 @@ export default function PaginationTable({
           </Table.Cell>
         </Table.Column>
 
-        <Table.Column width={120} align='center' fixed='right'>
+        <Table.Column width={180} align='center' fixed='right'>
           <Table.HeaderCell>Action</Table.HeaderCell>
 
           <Table.Cell>
@@ -153,22 +137,31 @@ export default function PaginationTable({
                   <button
                     onClick={() => handleAction(data)}
                     title='Edit'
-                    class='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
+                    className='btn btn-success btn-sm btn-border box-shadow btn-circle m-1'
                   >
-                    <i class='fa fa-edit'></i>
+                    <i className='fa fa-edit'></i>
                   </button>
                   <button
                     title={data.disable ? 'Activate' : 'Disable'}
                     onClick={() =>
                       data.disable ? onDisableUnable(data) : onDisable(data)
                     }
-                    class={`btn ${
+                    className={`btn ${
                       !data.disable ? 'btn-danger' : 'btn-info'
                     } btn-sm btn-border box-shadow btn-circle m-1`}
                   >
                     <i
-                      class={`fa ${!data.disable ? 'fa-times' : 'fa-check'}`}
+                      className={`fa ${
+                        !data.disable ? 'fa-times' : 'fa-check'
+                      }`}
                     ></i>
+                  </button>
+                  <button
+                    onClick={() => handlePreview(data)}
+                    title='Preview'
+                    className='btn btn-info btn-sm btn-border box-shadow btn-circle m-1'
+                  >
+                    <i className='fa fa-eye'></i>
                   </button>
                 </>
               );

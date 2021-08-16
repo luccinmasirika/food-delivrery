@@ -7,23 +7,28 @@ import MealModal from './MealModal';
 import { isAuthenticated } from '../../api/auth';
 import { onCreateData, onGetData, onUpdateData } from '../../api';
 import { API } from '../../config';
-import { Alert, Notification } from 'rsuite';
+import { Notification } from 'rsuite';
 
 import Filters from './Filters';
+import MealModalPreview from './MealModalPreview';
 
 export default function Meal() {
   const [showModal, setShowModal] = useState(false);
+  const [showModalPreview, setShowModalPreview] = useState(false);
   const { user, token } = isAuthenticated();
 
-  const [type, setType] = useState({
+  const [meal, setMeal] = useState({
     title: '',
     nom: '',
     description: '',
     image: '',
     ets: '',
     menu: '',
+    delais: '',
+    prix: '',
     _id: '',
     link: '',
+    autresImages: [],
     formData: new FormData(),
     update: false,
   });
@@ -54,29 +59,50 @@ export default function Meal() {
 
   const [current, setcurrent] = useState(0);
 
+  const images = [];
+
   const { loading } = state;
   const { total, page, pages, limit } = paginate;
-  const { title, image, update, ets, formData, _id } = type;
+  const { title, image, update, formData, _id } = meal;
 
   function openModal(title) {
-    setType({ ...type, title });
+    setMeal({ ...meal, title });
     setShowModal(true);
   }
 
   function closeModal() {
     setState({ ...state, loading: false, error: '' });
     setShowModal(false);
-    setType({
-      ...type,
+    setMeal({
+      ...meal,
       nom: '',
       titre: '',
       description: '',
       category: '',
       ets: '',
+      delais: '',
+      prix: '',
+      autresImages: [],
       menu: '',
       image: '',
       link: '',
       formData: new FormData(),
+    });
+  }
+
+  function closeModalPreview() {
+    setShowModalPreview(false);
+    setState({ ...state, loading: false, error: '' });
+    setMeal({
+      ...meal,
+      nom: '',
+      description: '',
+      category: '',
+      ets: '',
+      delais: '',
+      prix: '',
+      menu: '',
+      image: '',
     });
   }
 
@@ -90,17 +116,17 @@ export default function Meal() {
   const handleChange = (value, name) => {
     setState({ ...state, loading: false, error: '' });
     const { nom, description } = value;
-    setType({ ...type, nom, description });
+    setMeal({ ...meal, nom, description });
     formData.set(name.target.name, name.target.value);
   };
 
   const handleImageChange = (value) => {
     setState({ ...state, loading: false, error: '' });
-    setType({
-      ...type,
+    setMeal({
+      ...meal,
       image: value[0] && value[0].blobFile,
     });
-    type.formData.set('image', value[0] && value[0].blobFile);
+    meal.formData.set('image', value[0] && value[0].blobFile);
   };
 
   const handleChangePage = (data) => {
@@ -114,9 +140,19 @@ export default function Meal() {
 
   const handleEdit = (data) => {
     setState({ ...state, loading: false, error: '' });
-    const { nom, description, image, prix, delais, ets, menu, _id } = data;
-    setType({
-      ...type,
+    const {
+      nom,
+      description,
+      image,
+      prix,
+      delais,
+      ets,
+      menu,
+      autresImages,
+      _id,
+    } = data;
+    setMeal({
+      ...meal,
       title: `Update ${nom}'s informations`,
       nom,
       description,
@@ -124,6 +160,7 @@ export default function Meal() {
       prix,
       delais,
       ets,
+      autresImages,
       _id,
       menu,
       update: true,
@@ -131,9 +168,37 @@ export default function Meal() {
     setShowModal(true);
   };
 
+  const handlePreview = (data) => {
+    setState({ ...state, loading: false, error: '' });
+    const {
+      nom,
+      description,
+      image,
+      prix,
+      delais,
+      ets,
+      menu,
+      autresImages,
+      _id,
+    } = data;
+    setMeal({
+      ...meal,
+      nom,
+      description,
+      image,
+      prix,
+      delais,
+      autresImages,
+      ets,
+      _id,
+      menu,
+    });
+    setShowModalPreview(true);
+  };
+
   const handleSelectChange = (props) => (value) => {
     setState({ ...state, loading: false, error: '' });
-    setType({ ...type, [props]: value });
+    setMeal({ ...meal, [props]: value });
     formData.set(props, value);
   };
 
@@ -199,12 +264,14 @@ export default function Meal() {
     });
 
     setState({ ...state, loading: false, success: res.message });
-    setType({
-      ...type,
+    setMeal({
+      ...meal,
       nom: '',
       titre: '',
       description: '',
-      category: '',
+      menu: '',
+      delais: '',
+      prix: '',
       ets: '',
       image: '',
       link: `${API}/api/add/images/plat/${user._id}?_id=${res._id}`,
@@ -214,12 +281,38 @@ export default function Meal() {
     setRunEffect(!runEffect);
   };
 
-  const onFinish = () => {
-    setType({
-      ...type,
+  const onRemoveOthersImages = async (data) => {
+    images.push(`images/${data.url.split('images/')[1]}`);
+  };
+
+  const onFinish = async () => {
+    setState({ ...state, loading: true });
+    const res = await onUpdateData(
+      `/pull/plat/images/${user._id}?_id=${_id}`,
+      images,
+      token
+    );
+    if (res.error) {
+      return Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description: 'Something want wrong + ' + res.error,
+      });
+    }
+    images.length = 0;
+    Notification['success']({
+      title: 'Success',
+      placement: 'bottomEnd',
+      description:
+        'Done. The realization of this operation was completely successful ',
+    });
+    setMeal({
+      ...meal,
       link: '',
     });
+    setcurrent(0);
     setShowModal(false);
+    setState({ ...state, loading: false });
     setRunEffect(!runEffect);
   };
 
@@ -242,8 +335,8 @@ export default function Meal() {
     });
 
     setState({ ...state, loading: false, success: res.message });
-    setType({
-      ...type,
+    setMeal({
+      ...meal,
       nom: '',
       titre: '',
       description: '',
@@ -295,7 +388,7 @@ export default function Meal() {
       setState({ ...state, loading: true });
       if (!update) {
         const res = await onGetData(
-          `/read/all/menu/${user._id}?disable=false&ets=${ets || ''}`,
+          `/read/all/menu/${user._id}?disable=false`,
           token
         );
         const res2 = await onGetData(
@@ -304,7 +397,7 @@ export default function Meal() {
         );
 
         if (res && res.error) {
-          setType({ ...type, menu: '' });
+          setMeal({ ...meal, menu: '' });
           setAllMenu([]);
           return setState({
             ...state,
@@ -315,12 +408,12 @@ export default function Meal() {
 
         setAllMenu(res.data);
         setAllEts(res2.data);
-        setType({ ...type, menu: '' });
+        setMeal({ ...meal, menu: '' });
       }
 
       setState({ ...state, loading: false });
     })();
-  }, [ets]);
+  }, []);
 
   return (
     <Layout>
@@ -336,7 +429,7 @@ export default function Meal() {
       <section className='main-content'>
         <MealModal
           title={title}
-          data={type}
+          data={meal}
           showModal={showModal}
           state={state}
           closeModal={closeModal}
@@ -350,11 +443,18 @@ export default function Meal() {
           handleChange={handleChange}
           handleImageChange={handleImageChange}
           handleSelectChange={handleSelectChange}
+          onRemoveOthersImages={onRemoveOthersImages}
           current={current}
           onFinish={onFinish}
           onSubmit={() =>
             update ? onSubmitUpdate(formData) : onSubmitCreate(formData)
           }
+        />
+        <MealModalPreview
+          data={meal}
+          state={state}
+          showModal={showModalPreview}
+          closeModal={closeModalPreview}
         />
         <div className='card'>
           <Filters
@@ -374,6 +474,7 @@ export default function Meal() {
             handleChangePage={handleChangePage}
             handleChangeLength={handleChangeLength}
             handleAction={handleEdit}
+            handlePreview={handlePreview}
           />
         </div>
       </section>

@@ -6,24 +6,28 @@ import {
   FormControl,
   FormGroup,
   Icon,
+  InputPicker,
   Loader,
   Message,
   Modal,
   Uploader,
 } from 'rsuite';
+import dayjs from 'dayjs';
 
 import { API } from '../../config';
 
-export default function MenuModal({
-  title,
+export default function UserModal({
   data,
   state,
   showModal,
+  roleData,
+  sexeData,
   closeModal,
   btnStatus,
   handleChange,
   handleImageChange,
-  handleSelectChange,
+  handleRoleChange,
+  handleSexeChange,
   onSubmit,
 }) {
   return (
@@ -32,49 +36,57 @@ export default function MenuModal({
         <Loader backdrop content='loading...' style={{ zIndex: 10 }} vertical />
       )}
       <Modal.Header>
-        <Modal.Title>{title}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
+        <Modal.Title>Create new user</Modal.Title>
         {state.error && (
           <Message
             type='error'
             description={state.error}
-            style={{ marginBottom: '15px' }}
+            style={{ margin: '15px 0 0 0' }}
           />
         )}
-
+      </Modal.Header>
+      <Modal.Body>
         <Form fluid onChange={handleChange}>
           <FormGroup>
             <ControlLabel>
-              Name <code>*</code>
+              First Name <code>*</code>
             </ControlLabel>
-            <FormControl name='nom' value={data.nom} />
+            <FormControl name='firstName' />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>
-              Description <code>*</code>
+              Last Name <code>*</code>
             </ControlLabel>
-            <FormControl
-              rows={3}
-              name='description'
-              value={data.description}
-              componentClass='textarea'
+            <FormControl name='lastName' />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>
+              Email <code>*</code>
+            </ControlLabel>
+            <FormControl name='email' />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>
+              Password <code>*</code>
+            </ControlLabel>
+            <FormControl name='password' />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>
+              Role <code>*</code>
+            </ControlLabel>
+            <InputPicker
+              data={roleData}
+              placeholder='Select role'
+              onChange={handleRoleChange}
+              block
             />
           </FormGroup>
         </Form>
-        <Divider>Image</Divider>
-        <Uploader
-          name='image'
-          listType='picture'
-          disabled={btnStatus}
-          autoUpload={false}
-          defaultFileList={btnStatus ? [{ url: `${API}/${data.image}` }] : []}
-          onChange={handleImageChange}
-        >
-          <button style={{ display: btnStatus && 'none' }}>
-            <Icon icon='camera-retro' size='lg' />
-          </button>
-        </Uploader>
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={onSubmit} appearance='primary'>

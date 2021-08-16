@@ -87,9 +87,7 @@ const Login = () => {
               <h2 style={{ lineHeight: '1.6' }}>
                 Welcom to <br /> Bienfafood Admin Panel
               </h2>
-              <h5 className='p-3'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              </h5>
+              <h5 className='p-3'>Livraison de repas à domicile</h5>
             </div>
           </div>
         </div>
@@ -106,13 +104,13 @@ const Login = () => {
 
               {error && (
                 <div
-                  class='alert bg-danger alert-dismissible fade show'
+                  className='alert bg-danger alert-dismissible fade show'
                   role='alert'
                 >
                   {error}
                   <button
                     type='button'
-                    class='close'
+                    className='close'
                     onClick={onCancel}
                     data-dismiss='alert'
                     aria-label='Close'
@@ -156,7 +154,7 @@ const Login = () => {
                   className='btn btn-block btn-primary btn-rounded box-shadow mt-3'
                 >
                   <span
-                    class='spinner-grow spinner-grow-sm'
+                    className='spinner-grow spinner-grow-sm'
                     role='status'
                     aria-hidden='true'
                   ></span>

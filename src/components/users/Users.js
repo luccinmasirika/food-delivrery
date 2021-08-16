@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 import React, { useState, useEffect } from 'react';
 import CardLivreur from '../../sections/CardLivreur';
 import CardClient from '../../sections/CardClient';
@@ -5,32 +6,30 @@ import CardAdmin from '../../sections/CardAdmin';
 import Footer from '../footer/Footer';
 import Layout from '../Layout';
 import Header from '../navBar/Header';
-import ActionButton from '../../sections/ActionButton';
-import Input from '../../sections/Input';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import { onCreateData, onGetData } from '../../api';
-import { createUser, removeUser, getUser, updateUser } from '../../api/shop';
+import { onCreateData, onGetData, onUpdateData } from '../../api';
+import emailjs from 'emailjs-com';
 import { isAuthenticated } from '../../api/auth';
-import { Loader, Pagination } from 'rsuite';
+import { API, SERVICE_TEMPLATE, SERVICE_EMAIL, USER_ID } from '../../config';
+import { Loader, Notification, Pagination } from 'rsuite';
+import UserModal from './UserModal';
 
 const Users = () => {
-  const [allUsers, setAllUsers] = useState('');
   const [allClients, setAllClients] = useState('');
   const [allAdmins, setAllAdmins] = useState('');
   const [allLivreurs, setAllLivreurs] = useState('');
-  const [update, setUpdate] = useState({
-    updateFirstName: '',
-    updateLastName: '',
-    updateRole: '',
-    id: '',
-  });
-
+  const [showModal, setShowModal] = useState(false);
   const [create, setCreate] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
-    role: '',
+    role: 0,
+    telephone: '',
+    sexe: '',
+    idPiece: '',
+    image: '',
+    adresse: '',
+    formData: new FormData(),
   });
 
   const [state, setState] = useState({
@@ -39,7 +38,21 @@ const Users = () => {
     loading: false,
   });
 
-  const [paginate, setPaginate] = useState({
+  const [paginateClient, setPaginateClient] = useState({
+    total: 0,
+    page: 0,
+    pages: 0,
+    limit: 10,
+  });
+
+  const [paginateLivreur, setPaginateLivreur] = useState({
+    total: 0,
+    page: 0,
+    pages: 0,
+    limit: 10,
+  });
+
+  const [paginateAdmin, setPaginateAdmin] = useState({
     total: 0,
     page: 0,
     pages: 0,
@@ -47,269 +60,175 @@ const Users = () => {
   });
 
   const [runEffect, setRunEffect] = useState(false);
-  const [refreshClient, setRefreshClient] = useState(false);
-  const [refreshLivreur, setRefreshLivreur] = useState(false);
 
-  const { total, page, pages, limit } = paginate;
   const { loading } = state;
 
   const { loader, success, error } = state;
-  const { firstName, lastName, role, password, email } = create;
-  const { updateFirstName, updateLastName, updateRole, id } = update;
+  const {
+    firstName,
+    lastName,
+    role,
+    password,
+    email,
+    sexe,
+    idPiece,
+    image,
+    adresse,
+    telephone,
+    formData,
+  } = create;
   const { user, token } = isAuthenticated();
 
-  const handleChangePage = (data) => {
-    setPaginate({ ...paginate, page: data });
+  function openModal() {
+    setShowModal(true);
+  }
+
+  function closeModal() {
+    setState({ ...state, loading: false, error: '' });
+    setShowModal(false);
+    setCreate({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      role: 0,
+      telephone: '',
+      sexe: '',
+      idPiece: '',
+      image: '',
+      adresse: '',
+      formData: new FormData(),
+    });
+  }
+
+  const handleChangePageClient = (data) => {
+    setPaginateClient({ ...paginateClient, page: data });
   };
 
-  const handleChangeLength = (data) => {
+  const handleChangePageLivreur = (data) => {
+    setPaginateLivreur({ ...paginateLivreur, page: data });
+  };
+
+  const handleChangePageAdmin = (data) => {
+    setPaginateAdmin({ ...paginateAdmin, page: data });
+  };
+
+  const handleChange = (value, name) => {
+    setState({ ...state, loading: false, error: '' });
+    const { firstName, lastName, email, password } = value;
+    setCreate({
+      ...create,
+      firstName,
+      lastName,
+      email,
+      password,
+    });
+    formData.set(name.target.name, name.target.value);
+  };
+
+  const handleRoleChange = (value, name) => {
+    setState({ ...state, loading: false, error: '' });
+    setCreate({ ...create, role: value });
+    formData.set('role', value);
+  };
+
+  const handleSexeChange = (value, name) => {
+    setState({ ...state, loading: false, error: '' });
+    setCreate({ ...create, sexe: value });
+    formData.set('sexe', value);
+  };
+
+  const handleImageChange = (value) => {
+    setState({ ...state, loading: false, error: '' });
+    setCreate({
+      ...create,
+      image: value[0] && value[0].blobFile,
+    });
+    formData.set('image', value[0] && value[0].blobFile);
+  };
+
+  const onSubmitCreate = (data) => async (event) => {
     setState({ ...state, loading: true });
-    setPaginate({ ...paginate, limit: data, page: 1 });
-  };
-
-  const handelChangeCreate = (props) => (event) => {
-    setState({ error: false, success: false, loader: false });
-    setCreate({ ...create, [props]: event.target.value });
-  };
-
-  const onEdit = async (id) => {
-    const data = await getUser(id);
-    if (data.error)
-      return setState({ error: data.error, loader: false, success: false });
-    setUpdate({
-      updateFirstName: data.firstName,
-      updateLastName: data.lastName,
-      updateRole: data.role,
-      id: data._id,
-    });
-  };
-
-  const handelChangeUpdate = (props) => (event) => {
-    setState({ error: false, success: false, loader: false });
-    setUpdate({ ...update, [props]: event.target.value });
-  };
-
-  const onSubmitCreate = async (event) => {
-    event.preventDefault();
-    setState({ error: false, success: false, loader: true });
-    const data = await createUser(token, create);
-    if (data.error) return setState({ error: data.error, loader: false });
-    setState({ error: false, success: data.message, loader: false });
-    setCreate({
-      firstName: '',
-      lastName: '',
-      role: '',
-      password: '',
-      email: '',
-    });
-    setRunEffect(!runEffect);
-  };
-
-  const onSubmitUpdate = (id) => async (event) => {
-    event.preventDefault();
-    setState({ error: false, success: false, loader: true });
-    const data = await updateUser(id, token, {
-      firstName: updateFirstName,
-      lastName: updateLastName,
-      role: updateRole,
-    });
-    if (data.error) {
-      return setState({ ...state, error: data.error, loader: false });
+    const res = await onCreateData(`${API}/api/user/${user._id}`, data, token);
+    if (res.error) {
+      setState({ ...state, loading: false });
+      return Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description: 'Something want wrong + ' + res.error,
+      });
     }
-    setState({ ...state, loader: false, success: data.message });
-    setUpdate({
-      ...update,
-      updateFirstName: data.firstName,
-      updateLastName: data.lastName,
-      updateRole: data.role,
-    });
+
+    setState({ error: false, success: false, loader: true });
+    closeModal();
     setRunEffect(!runEffect);
   };
 
-  const onCancel = () => {
-    setCreate({
-      firstName: '',
-      lastName: '',
-      role: '',
-      password: '',
-      email: '',
-    });
-    setState({ error: false, success: false, loader: false });
+  const onSubmitCreateLivreur = (data) => async (event) => {
+    event.preventDefault();
+    setState({ ...state, loading: true });
+    const res = await onCreateData(
+      `${API}/api/livreur/signup/${user._id}`,
+      data,
+      token
+    );
+    if (res.error) {
+      setState({ ...state, loading: false });
+      return Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description: 'Something want wrong + ' + res.error,
+      });
+    }
+
+    emailjs
+      .send(
+        SERVICE_EMAIL,
+        SERVICE_TEMPLATE,
+        {
+          to_name: firstName,
+          to_email: email,
+          to_password: password,
+        },
+        USER_ID
+      )
+      .then(
+        (result) => {
+          setState({ ...state, loading: false });
+          setState({ error: false, success: false, loader: true });
+          closeModal();
+          setRunEffect(!runEffect);
+          console.log(result.text);
+          return Notification['success']({
+            title: 'Success',
+            placement: 'bottomEnd',
+            description:
+              'Done. The realization of this operation was completely successful',
+          });
+        },
+        (error) => {
+          setState({ ...state, loading: false });
+          console.log(error.text);
+          return Notification['error']({
+            title: 'Error',
+            placement: 'bottomEnd',
+            description: 'Something want wrong + ' + error.text,
+          });
+        }
+      );
   };
-
-  const createModal = () => (
-    <div
-      class='modal fade myModal'
-      tabindex='-1'
-      role='dialog'
-      aria-labelledby='myDefaultModalLabel'
-    >
-      <div class='modal-dialog' role='document'>
-        <div class='modal-content'>
-          <div class='modal-header'>
-            <button
-              type='button'
-              class='close'
-              data-dismiss='modal'
-              aria-label='Close'
-              onClick={onCancel}
-            >
-              <span aria-hidden='true' class='fa fa-times'></span>
-            </button>
-            <h5 class='modal-title' id='myDefaultModalLabel'>
-              Nouvel utilisateur
-            </h5>
-          </div>
-          {loader && (
-            <LinearProgress color='secondary' style={{ width: '100%' }} />
-          )}
-          <div class='modal-body'>
-            {(error || success) && (
-              <div
-                class={`alert bg-${
-                  error ? 'danger' : 'success'
-                } alert-dismissible fade show`}
-                role='alert'
-              >
-                <strong>{error ? 'Erreur' : 'Succès'}!</strong>{' '}
-                {error ? error : success}
-              </div>
-            )}
-            <Input
-              icon='fa fa-user'
-              action={handelChangeCreate('firstName')}
-              value={firstName}
-              type='text'
-              placeholder='Nom'
-            />
-            <Input
-              icon='fa fa-user'
-              action={handelChangeCreate('lastName')}
-              value={lastName}
-              type='text'
-              placeholder='Postnom'
-            />
-            <Input
-              icon='fa fa-at'
-              action={handelChangeCreate('email')}
-              value={email}
-              type='text'
-              placeholder='Email'
-            />
-            <Input
-              icon='fa fa-unlock'
-              action={handelChangeCreate('password')}
-              value={password}
-              type='password'
-              placeholder='Mot de passe'
-            />
-            {user.role === 0 && (
-              <div className='form-group'>
-                <select
-                  onChange={handelChangeCreate('role')}
-                  class='form-control'
-                  value={role}
-                >
-                  <option value=''>Rôle</option>
-                  <option value={0}>Administrateur</option>
-                  <option value={1}>Distributeur</option>
-                  <option value={2}>Vendeur</option>
-                </select>
-              </div>
-            )}
-          </div>
-          <ActionButton
-            save={onSubmitCreate}
-            loader={loader}
-            cancel={onCancel}
-          />
-        </div>
-      </div>
-    </div>
-  );
-
-  const updateModal = () => (
-    <div
-      class='modal fade myModalUpdate'
-      tabindex='-1'
-      role='dialog'
-      aria-labelledby='myDefaultModalLabel'
-    >
-      <div class='modal-dialog' role='document'>
-        <div class='modal-content'>
-          <div class='modal-header'>
-            <button
-              type='button'
-              class='close'
-              data-dismiss='modal'
-              aria-label='Close'
-              onClick={onCancel}
-            >
-              <span aria-hidden='true' class='fa fa-times'></span>
-            </button>
-            <h5 class='modal-title' id='myDefaultModalLabel'>
-              Modifier l'utilisateur
-            </h5>
-          </div>
-          {loader && (
-            <LinearProgress color='secondary' style={{ width: '100%' }} />
-          )}
-          <div class='modal-body'>
-            {(error || success) && (
-              <div
-                class={`alert bg-${
-                  error ? 'danger' : 'success'
-                } alert-dismissible fade show`}
-                role='alert'
-              >
-                <strong>{error ? 'Erreur' : 'Succès'}!</strong>{' '}
-                {error ? error : success}
-              </div>
-            )}
-            <Input
-              icon='fa fa-user'
-              action={handelChangeUpdate('updateFirstName')}
-              value={updateFirstName}
-              type='text'
-              placeholder='Nom'
-            />
-            <Input
-              icon='fa fa-user'
-              action={handelChangeUpdate('updateLastName')}
-              value={updateLastName}
-              type='text'
-              placeholder='Postnom'
-            />
-            {user._id !== id && (
-              <div className='form-group'>
-                <select
-                  onChange={handelChangeUpdate('updateRole')}
-                  class='form-control'
-                  value={updateRole}
-                >
-                  <option value=''>Rôle</option>
-                  <option value={0}>Administrateur</option>
-                  <option value={1}>Distributeur</option>
-                  <option value={2}>Vendeur</option>
-                </select>
-              </div>
-            )}
-          </div>
-          <ActionButton
-            save={onSubmitUpdate(id)}
-            loader={loader}
-            cancel={onCancel}
-          />
-        </div>
-      </div>
-    </div>
-  );
 
   const onDisable = async (id) => {
+    setState({ ...state, loading: true });
     setState({ error: false, success: false, loader: true });
-    const data = await removeUser(id, token);
-    if (data.error) {
-      return setState({ error: data.error, success: false, loader: false });
+    const res = await onUpdateData(`${API}/api/user/${id}`, token);
+    if (res.error) {
+      setState({ ...state, loading: false });
+      return Notification['error']({
+        title: 'Error',
+        placement: 'bottomEnd',
+        description: 'Something want wrong + ' + res.error,
+      });
     }
     setState({ error: false, success: false, loader: false });
     setRunEffect(!runEffect);
@@ -319,58 +238,61 @@ const Users = () => {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/client/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/client/${user._id}?limit=${paginateClient.limit}&page=${paginateClient.page}`
       );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
       }
       setAllClients(res && res.data);
-      setPaginate({
-        ...paginate,
+      setPaginateClient({
+        ...paginateClient,
         total: res.total,
         page: res.page,
+        pages: res.pages,
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit, runEffect, page]);
+  }, [paginateClient.limit, runEffect, paginateClient.page]);
 
   useEffect(() => {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/livreur/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/livreur/${user._id}?limit=${paginateLivreur.limit}&page=${paginateLivreur.page}`
       );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
       }
       setAllLivreurs(res && res.data);
-      setPaginate({
-        ...paginate,
+      setPaginateLivreur({
+        ...paginateLivreur,
         total: res.total,
         page: res.page,
+        pages: res.pages,
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit, runEffect, page]);
+  }, [paginateLivreur.limit, runEffect, paginateLivreur.page]);
 
   useEffect(() => {
     (async () => {
       setState({ ...state, loading: true });
       const res = await onGetData(
-        `/read/all/admin/${user._id}?limit=${limit}&page=${page}`
+        `/read/all/admin/${user._id}?limit=${paginateAdmin.limit}&page=${paginateAdmin.page}`
       );
       if (res && res.error) {
         return setState({ ...state, loading: false, error: res.error });
       }
       setAllAdmins(res && res.data);
-      setPaginate({
-        ...paginate,
+      setPaginateAdmin({
+        ...paginateAdmin,
         total: res.total,
         page: res.page,
+        pages: res.pages,
       });
       setState({ ...state, loading: false });
     })();
-  }, [limit, runEffect, page]);
+  }, [paginateAdmin.limit, runEffect, paginateAdmin.page]);
 
   return (
     <Layout>
@@ -378,10 +300,34 @@ const Users = () => {
         parent='Home'
         content='Users'
         title='Users management'
-        create={false}
+        text='Create new user'
+        handelClick={() => openModal()}
+        create={true}
       />
-      {createModal()}
-      {updateModal()}
+      <UserModal
+        data={create}
+        showModal={showModal}
+        state={state}
+        roleData={[
+          { label: 'Admin', value: 0 },
+          { label: 'Delivrery Man', value: 2 },
+        ]}
+        sexeData={[
+          { label: 'Mascular', value: 'M' },
+          { label: 'Femele', value: 'F' },
+        ]}
+        closeModal={closeModal}
+        btnStatus={image ? true : false}
+        handleChange={handleChange}
+        handleImageChange={handleImageChange}
+        handleRoleChange={handleRoleChange}
+        handleSexeChange={handleSexeChange}
+        onSubmit={
+          role === 2
+            ? onSubmitCreateLivreur(formData)
+            : onSubmitCreate(formData)
+        }
+      />
       <section className='main-content'>
         <div className='card'>
           <div className='card-body'>
@@ -443,7 +389,6 @@ const Users = () => {
                               key={_._id}
                               data={_}
                               onLoad={loader}
-                              onEdit={() => onEdit(_._id)}
                               onDisable={() => onDisable(_._id)}
                             />
                           );
@@ -459,10 +404,9 @@ const Users = () => {
                       ellipsis={true}
                       boundaryLinks={true}
                       activePage={1}
-                      pages={30}
+                      pages={paginateClient.pages}
                       maxButtons={5}
-                      // activePage={this.state.activePage}
-                      // onSelect={this.handleSelect}
+                      onSelect={handleChangePageClient}
                     />
                   </div>
                 </div>
@@ -479,7 +423,6 @@ const Users = () => {
                               key={_._id}
                               data={_}
                               onLoad={loader}
-                              onEdit={() => onEdit(_._id)}
                               onDisable={() => onDisable(_._id)}
                             />
                           );
@@ -495,10 +438,9 @@ const Users = () => {
                       ellipsis={true}
                       boundaryLinks={true}
                       activePage={1}
-                      pages={30}
+                      pages={paginateLivreur.pages}
                       maxButtons={5}
-                      // activePage={this.state.activePage}
-                      // onSelect={this.handleSelect}
+                      onSelect={handleChangePageLivreur}
                     />
                   </div>
                 </div>
@@ -515,7 +457,6 @@ const Users = () => {
                               key={_._id}
                               data={_}
                               onLoad={loader}
-                              onEdit={() => onEdit(_._id)}
                               onDisable={() => onDisable(_._id)}
                             />
                           );
@@ -531,10 +472,9 @@ const Users = () => {
                       ellipsis={true}
                       boundaryLinks={true}
                       activePage={1}
-                      pages={30}
+                      pages={paginateAdmin.pages}
                       maxButtons={5}
-                      // activePage={this.state.activePage}
-                      // onSelect={this.handleSelect}
+                      onSelect={handleChangePageAdmin}
                     />
                   </div>
                 </div>

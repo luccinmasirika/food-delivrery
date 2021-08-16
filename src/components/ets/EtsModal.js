@@ -72,7 +72,9 @@ export default function EtsModal({
             </ControlLabel>
             <InputPicker
               data={typeData}
-              placeholder={data.type.nom ? data.type.nom : 'Select type'}
+              placeholder={
+                data.type && data.type.nom ? data.type.nom : 'Select type'
+              }
               onChange={handleSelectChange}
               block
             />
@@ -137,7 +139,7 @@ export default function EtsModal({
               <Uploader
                 name='image'
                 listType='picture'
-                disabled={btnStatus} 
+                disabled={btnStatus}
                 autoUpload={false}
                 defaultFileList={
                   btnStatus ? [{ url: `${API}/${data.image}` }] : []
