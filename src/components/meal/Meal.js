@@ -103,6 +103,7 @@ export default function Meal() {
       prix: '',
       menu: '',
       image: '',
+      autresImages: [],
     });
   }
 
@@ -178,6 +179,7 @@ export default function Meal() {
       delais,
       ets,
       menu,
+      disable,
       autresImages,
       _id,
     } = data;
@@ -188,6 +190,7 @@ export default function Meal() {
       image,
       prix,
       delais,
+      disable,
       autresImages,
       ets,
       _id,
@@ -286,32 +289,34 @@ export default function Meal() {
   };
 
   const onFinish = async () => {
-    setState({ ...state, loading: true });
-    const res = await onUpdateData(
-      `/pull/plat/images/${user._id}?_id=${_id}`,
-      images,
-      token
-    );
-    if (res.error) {
-      return Notification['error']({
-        title: 'Error',
+    if (update) {
+      setState({ ...state, loading: true });
+      const res = await onUpdateData(
+        `/pull/plat/images/${user._id}?_id=${_id}`,
+        images,
+        token
+      );
+      if (res.error) {
+        return Notification['error']({
+          title: 'Error',
+          placement: 'bottomEnd',
+          description: 'Something want wrong + ' + res.error,
+        });
+      }
+      images.length = 0;
+      Notification['success']({
+        title: 'Success',
         placement: 'bottomEnd',
-        description: 'Something want wrong + ' + res.error,
+        description:
+          'Done. The realization of this operation was completely successful ',
       });
     }
-    images.length = 0;
-    Notification['success']({
-      title: 'Success',
-      placement: 'bottomEnd',
-      description:
-        'Done. The realization of this operation was completely successful ',
-    });
     setMeal({
       ...meal,
       link: '',
     });
+    closeModal();
     setcurrent(0);
-    setShowModal(false);
     setState({ ...state, loading: false });
     setRunEffect(!runEffect);
   };

@@ -130,12 +130,13 @@ export default function Menu() {
 
   const handlePreview = (data) => {
     setState({ ...state, loading: false, error: '' });
-    const { nom, description, image } = data;
+    const { nom, description, image, disable } = data;
     setMenu({
       ...menu,
       nom,
       description,
       image,
+      disable,
     });
     setShowModalPreview(true);
   };

@@ -69,8 +69,7 @@ const TopBar = ({ history, window }) => {
                   <img
                     alt='prodil'
                     className='rounded-circle'
-                    src='/assets/img/avtar-4.png'
-                    // src={`${API}${avatar}`}
+                    src={`${API}/${avatar}`}
                     width={30}
                   />
                   {firstName} {lastName}

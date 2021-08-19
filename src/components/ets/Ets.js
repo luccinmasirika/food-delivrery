@@ -79,6 +79,7 @@ export default function Ets() {
     setShowModalPreview(false);
     setState({ ...state, loading: false, error: '' });
     setEts({
+      ...ets,
       nom: '',
       title: '',
       long: '',
@@ -88,6 +89,7 @@ export default function Ets() {
       description: '',
       type: '',
       image: '',
+      formData: new FormData(),
     });
   }
 
@@ -136,7 +138,8 @@ export default function Ets() {
 
   const handleEdit = (data) => {
     setState({ ...state, loading: false, error: '' });
-    const { nom, description, _id, type, image, localisation, heure } = data;
+    const { nom, description, _id, type, image, localisation, heure, disable } =
+      data;
     setEts({
       ...ets,
       title: `Update ${nom}`,
@@ -150,6 +153,7 @@ export default function Ets() {
       lat: localisation.lat,
       _id,
       update: true,
+      disable,
     });
 
     setShowModal(true);
@@ -157,8 +161,17 @@ export default function Ets() {
 
   const handlePreview = (data) => {
     setState({ ...state, loading: false, error: '' });
-    const { nom, description, _id, type, image, localisation, heure, etat } =
-      data;
+    const {
+      nom,
+      description,
+      _id,
+      type,
+      image,
+      localisation,
+      heure,
+      etat,
+      disable,
+    } = data;
     setEts({
       ...ets,
       nom,
@@ -166,6 +179,7 @@ export default function Ets() {
       type,
       image,
       etat,
+      disable,
       ouverture: heure.ouverture,
       fermeture: heure.fermeture,
       long: localisation.long,

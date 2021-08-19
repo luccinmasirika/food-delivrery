@@ -14,21 +14,34 @@ function DashboardDeux() {
   const parseDataChart = ChartData(dataChart);
 
   const data2 = {
-    labels: ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Main', 'Juin'],
+    labels: [
+      'Janvier',
+      'Fevrier',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Aout',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Decembre',
+    ],
     datasets: [
       {
         label: 'PAYIED',
-        data: [0, 19, 3, 5, 2, 3],
+        data: [0, 19, 3, 5, 2, 3, 5, 10, 13, 9, 2, 20],
         backgroundColor: '#7BCB4D',
       },
       {
         label: 'CANCELED',
-        data: [2, 3, 20, 5, 1, 4],
+        data: [12, 3, 20, 5, 1, 4, 9, 4, 1, 0, 9, 10],
         backgroundColor: '#F4516C',
       },
       {
         label: 'DENIED',
-        data: [3, 10, 13, 15, 22, 30],
+        data: [5, 10, 13, 15, 22, 30, 20, 10, 5, 19, 20, 40],
         backgroundColor: '#F6BC51',
       },
     ],
@@ -71,7 +84,7 @@ function DashboardDeux() {
           <Loader backdrop content='loading...' style={{ zIndex: 2 }} />
         )}
         <Bar
-          data={data}
+          data={data2}
           height={isMobile ? 0 : 70}
           style={{ marginBottom: '30px' }}
         />

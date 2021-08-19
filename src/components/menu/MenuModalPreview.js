@@ -24,7 +24,13 @@ export default function MenuModalPreview({
           />
           <Divider />
           <span className='h4'>{data.nom}</span>
-          <span className='badge badge-danger float-right'>Disabled</span>
+          <span
+            className={`badge badge-${
+              data.disable ? 'danger' : 'info'
+            } float-right`}
+          >
+            {data.disable ? 'Disabled' : 'Active'}
+          </span>
           <p className='mt-2'>{data.description}</p>
         </div>
       </Modal.Body>

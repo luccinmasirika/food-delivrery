@@ -25,7 +25,13 @@ export default function MealModalPreview({
           />
           <Divider />
           <span className='h4'>{data.nom}</span>
-          <span className='badge badge-danger float-right'>Disabled</span>
+          <span
+            className={`badge badge-${
+              data.disable ? 'danger' : 'info'
+            } float-right`}
+          >
+            {data.disable ? 'Disabled' : 'Active'}
+          </span>
           <p className='mt-2'>
             Lorem ipsum dolor, sit amet consectetur adipisicing elit. Hic
             consectetur est alias distinctio, nam consequatur? Lorem ipsum
@@ -56,7 +62,7 @@ export default function MealModalPreview({
             <img
               src={`${API}/${el}`}
               alt=''
-              className='img-fluid rounded mb-3'
+              className='img-fluid w-100 rounded mb-3'
             />
           ))}
         </div>
